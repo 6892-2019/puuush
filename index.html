@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>puuush</title>
+    <script src='./js/util.js'></script>
+    <script src='./js/game.js'></script>
+    <script src='./js/ui.js'></script>
+    <script>
+    var cur_state;
+    function redraw() {
+        document.getElementById('game').innerText = ui_state_to_text(cur_state)
+    }
+
+    function start_game() {
+        cur_state = game_new_game(Level);
+        redraw();
+    }
+
+    function move(dy, dx) {
+        game_move(cur_state, false, dy, dx);
+        redraw();
+    }
+    </script>
+</head>
+<body onload='start_game()'>
+    <div>
+        <button onclick='move(0, -1)'>←</button>
+        <button onclick='move(1, 0)'>↓</button>
+        <button onclick='move(-1, 0)'>↑</button>
+        <button onclick='move(0, 1)'>→</button>
+    </div>
+    <pre id='game'></pre>
+</body>
+</html>
