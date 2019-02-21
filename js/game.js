@@ -96,7 +96,7 @@ function game_move(state, is_pull, dy, dx) {
         return false;
     }
 
-    util_assert(!is_pull); // unimplemented
+    util_assert(!is_pull); // unimplemented TODO
 
     switch (state.map[new_y][new_x]) {
         case TILE_FIXED:
@@ -118,6 +118,7 @@ function game_move(state, is_pull, dy, dx) {
         break;
         case TILE_BLOCK:
             var blocks = game_count_blocks(state, new_y, new_x, dy, dx);
+            // TODO: add infinity
             if (blocks > state.push_strength) {
                 return false;
             }
@@ -136,10 +137,10 @@ function game_move(state, is_pull, dy, dx) {
                     game_move_blocks(state, new_y, new_x, dy, dx, blocks, 1);
                 break;
                 case SLIDE_MOVED:
-                    util_assert(false); // unimplemented
+                    util_assert(false); // unimplemented TODO
                 break;
                 case SLIDE_ALL:
-                    util_assert(false); // unimplemented
+                    util_assert(false); // unimplemented TODO
                 break;
             }
 
