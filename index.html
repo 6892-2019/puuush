@@ -7,13 +7,28 @@
     <script src='./js/game.js'></script>
     <script src='./js/ui.js'></script>
     <script>
+    'use strict';
     var cur_state;
+
+    function $(id) {
+        return document.getElementById(id);
+    }
+
+    function redraw_text() {
+        $('game_text').innerText = ui_state_to_text(cur_state)
+    }
+
+    function redraw_canvas() {
+        ui_redraw_canvas($('game_canvas'), cur_state);
+    }
+
     function redraw() {
-        document.getElementById('game').innerText = ui_state_to_text(cur_state)
+        redraw_text();
+        redraw_canvas();
     }
 
     function start_game() {
-        var form = document.getElementById('level');
+        var form = $('level');
 
         try {
             var map_details = ui_parse_map(form.elements.map.value);
@@ -42,10 +57,14 @@
         }
 
         cur_state = game_new_game(level);
+
+        ui_resize_canvas($('game_canvas'), cur_state);
         redraw();
     }
 
     function init() {
+        ui_preload_canvas_tiles();
+
         document.addEventListener('keypress', function (e) {
             var is_pull = e.shiftKey;
             switch (e.code) {
@@ -79,6 +98,11 @@ tt {
 
 div,textarea {
     margin-bottom: 7px;
+}
+
+.credits {
+    margin-top: 5px;
+    font-size: smaller;
 }
     </style>
 </head>
@@ -123,6 +147,8 @@ div,textarea {
         <button onclick='move(true, 0, 1)'>→</button>
         (or Shift+WASD)
     </div>
-    <pre id='game'></pre>
+    <canvas id='game_canvas'></canvas>
+    <pre id='game_text'></pre>
+    <div class='credits'>penguin icon by <a href='https://icons8.com' rel='noreferrer'>icons8.com</a>, thanks!</div>
 </body>
 </html>
