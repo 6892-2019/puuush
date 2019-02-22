@@ -152,7 +152,38 @@ function game_move(state, is_pull, dy, dx) {
                     game_move_blocks(state, new_y, new_x, dy, dx, blocks, steps);
                 break;
                 case SLIDE_ALL:
-                    util_assert(false); // unimplemented TODO
+                    // completely different logic here: just count how many
+                    // blocks there are in line of sight and push them to the end
+                    var blocks = 0;
+                    var empties = 0;
+                    var line_y = new_y;
+                    var line_x = new_x;
+
+                    while (game_coords_valid(state, line_y, line_x)
+                           && ((state.map[line_y][line_x] === TILE_EMPTY)
+                               || (state.map[line_y][line_x] === TILE_BLOCK))) {
+                        if (state.map[line_y][line_x] === TILE_BLOCK) {
+                            blocks += 1;
+                        } else {
+                            empties += 1;
+                        }
+                        line_y += dy;
+                        line_x += dx;
+                    }
+                    // note: the while loop will stop on first *occupied* block
+
+                    if (empties === 0) {
+                        // there's nowhere to actually move the blocks;
+                        return false;
+                    }
+
+                    var line_y = state.y + dy;
+                    var line_x = state.x + dx;
+                    for (var i = 0; i < blocks + empties; ++i) {
+                        state.map[line_y][line_x] = (i < empties) ? TILE_EMPTY : TILE_BLOCK;
+                        line_y += dy;
+                        line_x += dx;
+                    }
                 break;
             }
 
