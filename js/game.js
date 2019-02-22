@@ -103,6 +103,12 @@ function game_move(state, is_pull, dy, dx) {
         // pulling
         util_assert(!state.level.rules.simple_path);
 
+        if (state.level.rules.pull_strength === 0) {
+            // prevent case where you can try pulling with strength 0,
+            // resulting in plain movement (as long as you're facing a block)
+            return false;
+        }
+
         if (!game_coords_valid(state, new_y, new_x)
             || (state.map[new_y][new_x] !== TILE_EMPTY)) {
             // nowhere to move into
