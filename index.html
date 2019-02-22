@@ -70,12 +70,23 @@
         redraw();
     }
     </script>
+    <style>
+tt {
+    border: 1px solid black;
+    background: #ddd;
+    padding: 2px;
+}
+
+div,textarea {
+    margin-bottom: 7px;
+}
+    </style>
 </head>
 <body onload='init()'>
     <div>
         <form id='level'>
-            <div>
-                <label>Level geometry: (<tt>.</tt> for blank space, <tt>#</tt> for fixed blocks, <tt>x</tt> for movable blocks, <tt>S</tt> for start position, <tt>F</tt> for finish)<br>
+            <label>
+                <div>Level geometry: (<tt>.</tt> for blank space, <tt>#</tt> for fixed blocks, <tt>x</tt> for movable blocks, <tt>S</tt> for start position, <tt>F</tt> for finish)</div>
                 <textarea name='map' rows='5' cols='30' id=''>
 .....xx.............
 .................xxx
@@ -83,8 +94,7 @@
 ..................xx
 ..x.xx.xxx.xxxx...#.
                 </textarea>
-                </label>
-            </div>
+            </label>
             <div><label>Push strength: <input type='number' min='-1' value='2' length='3' name='push_strength'> (0 to disable, -1 for infinity)</label></div>
             <div>Push sliding behavior:
                 <label><input type='radio' name='push_slide' value='0' checked> no sliding</label>,
