@@ -7,28 +7,29 @@ var SLIDE_NONE = 0;
 var SLIDE_MOVED = 1;
 var SLIDE_ALL = 2;
 
-var Level = {
-    height: 5,
-    width: 5,
-    starting_map: [
-        [TILE_EMPTY, TILE_EMPTY, TILE_EMPTY, TILE_EMPTY, TILE_EMPTY],
-        [TILE_EMPTY, TILE_EMPTY, TILE_BLOCK, TILE_EMPTY, TILE_EMPTY],
-        [TILE_EMPTY, TILE_EMPTY, TILE_EMPTY, TILE_EMPTY, TILE_EMPTY],
-        [TILE_EMPTY, TILE_EMPTY, TILE_EMPTY, TILE_FINISH, TILE_EMPTY],
-        [TILE_EMPTY, TILE_EMPTY, TILE_EMPTY, TILE_EMPTY, TILE_EMPTY],
-    ],
-    start_y: 2,
-    start_x: 1,
+/*
+type Level = {
+    height: int,
+    width: int,
+    starting_map: [[TILE_*]],
+    start_y: int,
+    start_x: int,
     rules: {
-        push_strength: 1,
-        pull_strength: 0,
-        push_slide: SLIDE_NONE,
-        simple_path: false,
-        can_pull: false,
+        push_strength: int,
+        pull_strength: int,
+        push_slide: SLIDE_*,
+        simple_path: bool,
     },
 }
 
-var State
+type State = {
+    won: bool,
+    level: Level,
+    map: [[TILE_*]],
+    y: int,
+    x: int,
+}
+*/
 
 function game_new_game(level) {
     // (Level) -> State
@@ -92,7 +93,7 @@ function game_move(state, is_pull, dy, dx) {
     var new_y = state.y + dy;
     var new_x = state.x + dx;
 
-    if (!game_coords_valid(state, new_x, new_y)) {
+    if (!game_coords_valid(state, new_y, new_x)) {
         return false;
     }
 
@@ -118,8 +119,7 @@ function game_move(state, is_pull, dy, dx) {
         break;
         case TILE_BLOCK:
             var blocks = game_count_blocks(state, new_y, new_x, dy, dx);
-            // TODO: add infinity
-            if (blocks > state.push_strength) {
+            if (util_greater_than(blocks, state.level.rules.push_strength)) {
                 return false;
             }
 

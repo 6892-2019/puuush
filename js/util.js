@@ -12,7 +12,7 @@ function util_make_2d_array(height, width, val) {
 }
 
 function util_copy_2d_array(arr) {
-    // [[Any]] -> [[Any]]
+    // ([[Any]]) -> [[Any]]
     var res = [];
     for (var i = 0; i < arr.length; ++i) {
         var line = [];
@@ -25,7 +25,13 @@ function util_copy_2d_array(arr) {
 }
 
 function util_assert(cond) {
+    // (bool) -> undefined
     if (!cond) {
         throw 'assertion failed';
     }
+}
+
+function util_greater_than(a, b) {
+    // (int, int) -> bool
+    return (b !== -1) && ((a === -1) || (a > b));
 }

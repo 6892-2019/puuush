@@ -13,7 +13,30 @@
     }
 
     function start_game() {
-        cur_state = game_new_game(Level);
+        var form = document.getElementById('level');
+
+        try {
+            var map_details = ui_parse_map(form.elements.map.value);
+        } catch (e) {
+            alert(e);
+            return;
+        }
+
+        var level = {
+            height: map_details.height,
+            width: map_details.width,
+            starting_map: map_details.map,
+            start_y: map_details.start_y,
+            start_x: map_details.start_x,
+            rules: {
+                push_strength: parseInt(form.elements.push_strength.value),
+                pull_strength: parseInt(form.elements.pull_strength.value),
+                push_slide: parseInt(form.elements.push_slide.value),
+                simple_path: form.elements.simple_path.checked,
+            }
+        }
+
+        cur_state = game_new_game(level);
         redraw();
     }
 
@@ -23,7 +46,32 @@
     }
     </script>
 </head>
-<body onload='start_game()'>
+<body>
+    <div>
+        <form id='level'>
+            <div>
+                <label>Level geometry: (<tt>.</tt> for blank space, <tt>#</tt> for fixed blocks, <tt>x</tt> for movable blocks, <tt>S</tt> for start position, <tt>F</tt> for finish)<br>
+                <textarea name='map' rows='5' cols='30' id=''>
+.....xx.............
+.................xxx
+..S..............x.F
+..................xx
+..x.xx.xxx.xxxx.....
+                </textarea>
+                </label>
+            </div>
+            <div><label>Push strength: <input type='number' min='-1' value='2' length='3' name='push_strength'> (0 to disable, -1 for infinity)</label></div>
+            <div>Push sliding behavior:
+                <label><input type='radio' name='push_slide' value='0' checked> no sliding</label>,
+                <label><input type='radio' name='push_slide' value='1'> moved blocks slide</label>
+                <label><input type='radio' name='push_slide' value='2'> all blocks in path slide</label>.
+            </div>
+            <div><label>Pull strength: <input type='number' min='-1' value='0' length='3' name='pull_strength'> (0 to disable, -1 for infinity)</label></div>
+            <div><label><input type='checkbox' name='simple_path'> Visited blocks fall</label></div>
+            <button type='button' onclick='start_game()'>start</button>
+        </form>
+    </div>
+    <hr>
     <div>
         <button onclick='move(0, -1)'>←</button>
         <button onclick='move(1, 0)'>↓</button>
