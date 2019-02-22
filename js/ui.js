@@ -9,7 +9,7 @@ function ui_state_to_text(state) {
     for (var y = 0; y < state.level.height; ++y) {
         var line = [];
         for (var x = 0; x < state.level.width; ++x) {
-            if ((y == state.y) && (x == state.x)) {
+            if ((y === state.y) && (x === state.x)) {
                 line.push('@');
                 continue;
             }
@@ -47,7 +47,7 @@ function ui_parse_map(map_text) {
         lines[i] = lines[i].trim();
 
         var map_line = [];
-        if (lines[i].length != res.width) {
+        if (lines[i].length !== res.width) {
             throw 'not all lines have the same length';
         }
 

@@ -50,7 +50,7 @@ function game_coords_valid(state, y, x) {
 function game_count_blocks(state, y, x, dy, dx) {
     // (State, int, int, int, int) -> int
     var res = 0;
-    while (game_coords_valid(state, y, x) && state.map[y][x] == TILE_BLOCK) {
+    while (game_coords_valid(state, y, x) && state.map[y][x] === TILE_BLOCK) {
         y += dy;
         x += dx;
         res += 1;
@@ -65,14 +65,14 @@ function game_move_blocks(state, y, x, dy, dx, cnt, steps) {
         var src_y = y + dy * i;
         var src_x = x + dx * i;
         util_assert(game_coords_valid(state, src_y, src_x));
-        util_assert(state.map[src_y][src_x] == TILE_BLOCK);
+        util_assert(state.map[src_y][src_x] === TILE_BLOCK);
         state.map[src_y][src_x] = TILE_EMPTY;
     }
     for (var i = 0; i < cnt; ++i) {
         var dst_y = y + dy * (i + steps);
         var dst_x = x + dx * (i + steps);
         util_assert(game_coords_valid(state, dst_y, dst_x));
-        util_assert(state.map[dst_y][dst_x] == TILE_EMPTY);
+        util_assert(state.map[dst_y][dst_x] === TILE_EMPTY);
         state.map[dst_y][dst_x] = TILE_BLOCK;
     }
 }
@@ -131,7 +131,7 @@ function game_move(state, is_pull, dy, dx) {
                     var empty_x = state.x + dx * (blocks + 1);
 
                     if (!game_coords_valid(state, empty_y, empty_x)
-                        || state.map[empty_y][empty_x] != TILE_EMPTY) {
+                        || (state.map[empty_y][empty_x] !== TILE_EMPTY)) {
                         return false;
                     }
 
