@@ -40,13 +40,33 @@
         redraw();
     }
 
-    function move(dy, dx) {
-        game_move(cur_state, false, dy, dx);
+    function init() {
+        document.addEventListener('keypress', function (e) {
+            var is_pull = e.shiftKey;
+            switch (e.code) {
+                case 'KeyW':
+                    move(is_pull, -1, 0);
+                break;
+                case 'KeyA':
+                    move(is_pull, 0, -1);
+                break;
+                case 'KeyS':
+                    move(is_pull, 1, 0);
+                break;
+                case 'KeyD':
+                    move(is_pull, 0, 1);
+                break;
+            }
+        });
+    }
+
+    function move(is_pull, dy, dx) {
+        game_move(cur_state, is_pull, dy, dx);
         redraw();
     }
     </script>
 </head>
-<body>
+<body onload='init()'>
     <div>
         <form id='level'>
             <div>
@@ -73,10 +93,20 @@
     </div>
     <hr>
     <div>
-        <button onclick='move(0, -1)'>←</button>
-        <button onclick='move(1, 0)'>↓</button>
-        <button onclick='move(-1, 0)'>↑</button>
-        <button onclick='move(0, 1)'>→</button>
+        push:
+        <button onclick='move(false, 0, -1)'>←</button>
+        <button onclick='move(false, 1, 0)'>↓</button>
+        <button onclick='move(false, -1, 0)'>↑</button>
+        <button onclick='move(false, 0, 1)'>→</button>
+        (or WASD)
+    </div>
+    <div>
+        pull:
+        <button onclick='move(true, 0, -1)'>←</button>
+        <button onclick='move(true, 1, 0)'>↓</button>
+        <button onclick='move(true, -1, 0)'>↑</button>
+        <button onclick='move(true, 0, 1)'>→</button>
+        (or Shift+WASD)
     </div>
     <pre id='game'></pre>
 </body>
