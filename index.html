@@ -36,6 +36,11 @@
             }
         }
 
+        if ((level.rules.pull_strength !== 0) && (level.rules.simple_path)) {
+            alert('cannot enable falling blocks when pulling is also enabled');
+            return;
+        }
+
         cur_state = game_new_game(level);
         redraw();
     }

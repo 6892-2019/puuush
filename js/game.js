@@ -97,104 +97,136 @@ function game_move(state, is_pull, dy, dx) {
         return false;
     }
 
-    util_assert(!is_pull); // unimplemented TODO
+    if (is_pull) {
+        // pulling
+        util_assert(!state.level.rules.simple_path);
 
-    switch (state.map[new_y][new_x]) {
-        case TILE_FIXED:
+        if (!game_coords_valid(state, new_y, new_x)
+            || (state.map[new_y][new_x] !== TILE_EMPTY)) {
+            // nowhere to move into
             return false;
-        break;
-        case TILE_FINISH:
-            state.won = true;
-            return true;
-        break;
-        case TILE_EMPTY:
-            if (state.level.rules.simple_path) {
-                state.map[state.y][state.x] = TILE_FIXED;
-            }
+        }
 
-            state.y = new_y;
-            state.x = new_x;
+        var pull_y = state.y - dy;
+        var pull_x = state.x - dx;
 
-            return true;
-        break;
-        case TILE_BLOCK:
-            var blocks = game_count_blocks(state, new_y, new_x, dy, dx);
-            if (util_greater_than(blocks, state.level.rules.push_strength)) {
+        if (state.map[pull_y][pull_x] !== TILE_BLOCK) {
+            // only blocks can be pulled
+            return false;
+        }
+
+        var blocks = game_count_blocks(state, pull_y, pull_x, -dy, -dx);
+        if (util_greater_than(blocks, state.level.rules.pull_strength)) {
+            blocks = state.level.rules.pull_strength;
+        }
+
+        // #.@xxx.. → #@xxx...
+        // notice how we only need to move the player and one block
+        state.map[state.y][state.x] = TILE_BLOCK;
+        state.map[state.y - dy * blocks][state.x - dx * blocks] = TILE_EMPTY;
+        state.y = new_y;
+        state.x = new_x;
+
+        return true;
+    } else {
+        // pushing
+        switch (state.map[new_y][new_x]) {
+            case TILE_FIXED:
                 return false;
-            }
+            break;
+            case TILE_FINISH:
+                state.won = true;
+                return true;
+            break;
+            case TILE_EMPTY:
+                if (state.level.rules.simple_path) {
+                    state.map[state.y][state.x] = TILE_FIXED;
+                }
 
-            switch (state.level.rules.push_slide) {
-                case SLIDE_NONE:
-                case SLIDE_MOVED:
-                    // check if there's space after the last block
-                    var empty_y = state.y + dy * (blocks + 1);
-                    var empty_x = state.x + dx * (blocks + 1);
+                state.y = new_y;
+                state.x = new_x;
 
-                    if (!game_coords_valid(state, empty_y, empty_x)
-                        || (state.map[empty_y][empty_x] !== TILE_EMPTY)) {
-                        return false;
-                    }
+                return true;
+            break;
+            case TILE_BLOCK:
+                var blocks = game_count_blocks(state, new_y, new_x, dy, dx);
+                if (util_greater_than(blocks, state.level.rules.push_strength)) {
+                    return false;
+                }
 
-                    // figure out how far we'll be pushing them
-                    var steps;
-                    if (state.level.rules.push_slide === SLIDE_MOVED) {
-                        steps = 0;
-                        while (game_coords_valid(state, empty_y, empty_x)
-                               && (state.map[empty_y][empty_x] === TILE_EMPTY)) {
-                            steps += 1;
-                            empty_y += dy;
-                            empty_x += dx;
+                switch (state.level.rules.push_slide) {
+                    case SLIDE_NONE:
+                    case SLIDE_MOVED:
+                        // check if there's space after the last block
+                        var empty_y = state.y + dy * (blocks + 1);
+                        var empty_x = state.x + dx * (blocks + 1);
+
+                        if (!game_coords_valid(state, empty_y, empty_x)
+                            || (state.map[empty_y][empty_x] !== TILE_EMPTY)) {
+                            return false;
                         }
-                    } else {
-                        steps = 1;
-                    }
 
-                    game_move_blocks(state, new_y, new_x, dy, dx, blocks, steps);
-                break;
-                case SLIDE_ALL:
-                    // completely different logic here: just count how many
-                    // blocks there are in line of sight and push them to the end
-                    var blocks = 0;
-                    var empties = 0;
-                    var line_y = new_y;
-                    var line_x = new_x;
-
-                    while (game_coords_valid(state, line_y, line_x)
-                           && ((state.map[line_y][line_x] === TILE_EMPTY)
-                               || (state.map[line_y][line_x] === TILE_BLOCK))) {
-                        if (state.map[line_y][line_x] === TILE_BLOCK) {
-                            blocks += 1;
+                        // figure out how far we'll be pushing them
+                        var steps;
+                        if (state.level.rules.push_slide === SLIDE_MOVED) {
+                            steps = 0;
+                            while (game_coords_valid(state, empty_y, empty_x)
+                                   && (state.map[empty_y][empty_x] === TILE_EMPTY)) {
+                                steps += 1;
+                                empty_y += dy;
+                                empty_x += dx;
+                            }
                         } else {
-                            empties += 1;
+                            steps = 1;
                         }
-                        line_y += dy;
-                        line_x += dx;
-                    }
-                    // note: the while loop will stop on first *occupied* block
 
-                    if (empties === 0) {
-                        // there's nowhere to actually move the blocks;
-                        return false;
-                    }
+                        game_move_blocks(state, new_y, new_x, dy, dx, blocks, steps);
+                    break;
+                    case SLIDE_ALL:
+                        // completely different logic here: just count how many
+                        // blocks there are in line of sight and push them to the end
+                        var blocks = 0;
+                        var empties = 0;
+                        var line_y = new_y;
+                        var line_x = new_x;
 
-                    var line_y = state.y + dy;
-                    var line_x = state.x + dx;
-                    for (var i = 0; i < blocks + empties; ++i) {
-                        state.map[line_y][line_x] = (i < empties) ? TILE_EMPTY : TILE_BLOCK;
-                        line_y += dy;
-                        line_x += dx;
-                    }
-                break;
-            }
+                        while (game_coords_valid(state, line_y, line_x)
+                               && ((state.map[line_y][line_x] === TILE_EMPTY)
+                                   || (state.map[line_y][line_x] === TILE_BLOCK))) {
+                            if (state.map[line_y][line_x] === TILE_BLOCK) {
+                                blocks += 1;
+                            } else {
+                                empties += 1;
+                            }
+                            line_y += dy;
+                            line_x += dx;
+                        }
+                        // note: the while loop will stop on first *occupied* block
 
-            if (state.level.rules.simple_path) {
-                state.map[state.y][state.x] = TILE_FIXED;
-            }
+                        if (empties === 0) {
+                            // there's nowhere to actually move the blocks;
+                            return false;
+                        }
 
-            state.y = new_y;
-            state.x = new_x;
+                        var line_y = state.y + dy;
+                        var line_x = state.x + dx;
+                        for (var i = 0; i < blocks + empties; ++i) {
+                            state.map[line_y][line_x] = (i < empties) ? TILE_EMPTY : TILE_BLOCK;
+                            line_y += dy;
+                            line_x += dx;
+                        }
+                    break;
+                }
 
-            return true;
-        break;
+                if (state.level.rules.simple_path) {
+                    state.map[state.y][state.x] = TILE_FIXED;
+                }
+
+                state.y = new_y;
+                state.x = new_x;
+
+                return true;
+            break;
+        }
     }
 }
