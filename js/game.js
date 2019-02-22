@@ -125,6 +125,7 @@ function game_move(state, is_pull, dy, dx) {
 
             switch (state.level.rules.push_slide) {
                 case SLIDE_NONE:
+                case SLIDE_MOVED:
                     // check if there's space after the last block
                     var empty_y = state.y + dy * (blocks + 1);
                     var empty_x = state.x + dx * (blocks + 1);
@@ -134,10 +135,21 @@ function game_move(state, is_pull, dy, dx) {
                         return false;
                     }
 
-                    game_move_blocks(state, new_y, new_x, dy, dx, blocks, 1);
-                break;
-                case SLIDE_MOVED:
-                    util_assert(false); // unimplemented TODO
+                    // figure out how far we'll be pushing them
+                    var steps;
+                    if (state.level.rules.push_slide === SLIDE_MOVED) {
+                        steps = 0;
+                        while (game_coords_valid(state, empty_y, empty_x)
+                               && (state.map[empty_y][empty_x] === TILE_EMPTY)) {
+                            steps += 1;
+                            empty_y += dy;
+                            empty_x += dx;
+                        }
+                    } else {
+                        steps = 1;
+                    }
+
+                    game_move_blocks(state, new_y, new_x, dy, dx, blocks, steps);
                 break;
                 case SLIDE_ALL:
                     util_assert(false); // unimplemented TODO
