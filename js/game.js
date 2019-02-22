@@ -1,3 +1,5 @@
+'use strict';
+
 var TILE_EMPTY = 0;
 var TILE_FIXED = 1;
 var TILE_BLOCK = 2;

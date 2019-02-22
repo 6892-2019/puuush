@@ -1,3 +1,5 @@
+'use strict';
+
 function util_make_2d_array(height, width, val) {
     // (int, int, Any) -> [[Any]]
     var res = [];

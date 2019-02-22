@@ -1,3 +1,5 @@
+'use strict';
+
 function ui_state_to_text(state) {
     // (State) -> String
     var lines = [];
