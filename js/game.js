@@ -35,13 +35,15 @@ type State = {
 
 function game_new_game(level) {
     // (Level) -> State
-    return {
+    var to_ret = {
         won: false,
         level: level,
         map: util_copy_2d_array(level.starting_map),
         y: level.start_y,
         x: level.start_x,
     }
+    do_gravity(to_ret);
+    return to_ret;
 }
 
 function game_coords_valid(state, y, x) {
@@ -58,6 +60,28 @@ function game_count_blocks(state, y, x, dy, dx) {
         res += 1;
     }
     return res;
+}
+
+function do_gravity(state) {
+    // State -> undefined
+    // Mutates state
+    // note: tiles will not fall past Finish tile
+    if (!state.level.rules.gravity) {
+        return
+    }
+    for (var x=0; x < state.level.width; ++x) {
+        for (var y=state.level.height-2; y >= 0; --y) {
+            for (var yy=y; yy < state.level.height-1; ++yy) {
+                if (state.map[yy][x] === TILE_BLOCK && 
+                        (state.map[yy+1][x] === TILE_EMPTY)) {
+                    state.map[yy+1][x] = TILE_BLOCK;
+                    state.map[yy][x] = TILE_EMPTY;
+                } else {
+                    break; // the first time this happens, you can't fall further
+                }
+            }
+        }
+    }
 }
 
 function game_move_blocks(state, y, x, dy, dx, cnt, steps) {
@@ -134,6 +158,8 @@ function game_move(state, is_pull, dy, dx) {
         state.map[state.y - dy * blocks][state.x - dx * blocks] = TILE_EMPTY;
         state.y = new_y;
         state.x = new_x;
+
+        do_gravity(state)
 
         return true;
     } else {
@@ -232,6 +258,8 @@ function game_move(state, is_pull, dy, dx) {
 
                 state.y = new_y;
                 state.x = new_x;
+
+                if (state.level.rules.push_slide === SLIDE_NONE) do_gravity(state);
 
                 return true;
             break;
