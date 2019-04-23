@@ -14,6 +14,16 @@
         return document.getElementById(id);
     }
 
+    function fix_gravity_button() {
+        var form = $('level');
+        if (parseInt(form.elements.push_slide.value) > 0) {
+            form.elements.gravity.checked = false;
+            form.elements.gravity.disabled = true;
+        } else {
+            form.elements.gravity.disabled = false;
+        }
+    }
+
     function redraw_text() {
         $('game_text').innerText = ui_state_to_text(cur_state)
     }
@@ -48,6 +58,7 @@
                 pull_strength: parseInt(form.elements.pull_strength.value),
                 push_slide: parseInt(form.elements.push_slide.value),
                 simple_path: form.elements.simple_path.checked,
+                gravity: form.elements.gravity.checked,
             }
         }
 
@@ -121,12 +132,16 @@ div,textarea {
             </label>
             <div><label>Push strength: <input type='number' min='-1' value='2' length='3' name='push_strength'> (0 to disable, -1 for infinity)</label></div>
             <div>Push sliding behavior:
-                <label><input type='radio' name='push_slide' value='0' checked> no sliding</label>,
-                <label><input type='radio' name='push_slide' value='1'> moved blocks slide</label>
-                <label><input type='radio' name='push_slide' value='2'> all blocks in path slide</label>.
+                <label><input type='radio' name='push_slide' value='0' checked
+                    onclick="fix_gravity_button()"> no sliding</label>,
+                <label><input type='radio' name='push_slide' value='1' onclick="fix_gravity_button()"> moved blocks slide</label>
+                <label><input type='radio' name='push_slide' value='2' onclick="fix_gravity_button()"> all blocks in path slide</label>.
             </div>
             <div><label>Pull strength: <input type='number' min='-1' value='0' length='3' name='pull_strength'> (0 to disable, -1 for infinity)</label></div>
-            <div><label><input type='checkbox' name='simple_path'> Visited blocks fall</label></div>
+            <div>
+                <label><input type='checkbox' name='simple_path'> Visited blocks fall</label>
+                <label><input type='checkbox' name='gravity'> Gravity (requires no sliding)</label>
+            </div>
             <button type='button' onclick='start_game()'>start</button>
         </form>
     </div>
