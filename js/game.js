@@ -75,7 +75,7 @@ function game_do_gravity(state) {
                 state.map[bottom][x] = TILE_BLOCK;
                 state.map[y][x] = TILE_EMPTY;
                 --bottom;
-            } else if (state.map[y][x] !== TILE_EMPTY) {
+            } else if (state.map[y][x] !== TILE_EMPTY || (y === state.y && x === state.x)) {
                 bottom = y-1;
             }
         }
@@ -177,6 +177,8 @@ function game_move(state, is_pull, dy, dx) {
 
                 state.y = new_y;
                 state.x = new_x;
+
+                game_do_gravity(state);
 
                 return true;
             break;
