@@ -51,10 +51,12 @@ function game_coords_valid(state, y, x) {
     return (0 <= y) && (y < state.level.height) && (0 <= x) && (x < state.level.width);
 }
 
-function game_count_blocks(state, y, x, dy, dx) {
+//pdy and pdx are player deltas
+function game_count_blocks(state, y, x, dy, dx, is_purp, pdy, pdx) {
     // (State, int, int, int, int) -> int
     var res = 0;
-    while (game_coords_valid(state, y, x) && state.map[y][x] === TILE_BLOCK) {
+    while (game_coords_valid(state, y, x) && state.map[y][x] === TILE_BLOCK &&
+		(!is_purp || (game_coords_valid(state, y + pdy, x + pdx) && state.map[y + pdy][x + pdx] == TILE_EMPTY))) {
         y += dy;
         x += dx;
         res += 1;
@@ -101,7 +103,98 @@ function game_move_blocks(state, y, x, dy, dx, cnt, steps) {
     }
 }
 
-function game_move(state, is_pull, dy, dx) {
+function attempt_pull(state, dy, dx, new_y, new_x) {
+	// pulling
+	util_assert(!state.level.rules.simple_path);
+
+	if (state.level.rules.pull_strength === 0) {
+		// prevent case where you can try pulling with strength 0,
+		// resulting in plain movement (as long as you're facing a block)
+		return false;
+	}
+
+	if (!game_coords_valid(state, new_y, new_x)
+		|| (state.map[new_y][new_x] !== TILE_EMPTY)) {
+		// nowhere to move into
+		return false;
+	}
+
+	var pull_y = state.y - dy;
+	var pull_x = state.x - dx;
+
+	if (!game_coords_valid(state, pull_y, pull_x) || state.map[pull_y][pull_x] !== TILE_BLOCK) {
+		// only blocks can be pulled
+		return false;
+	}
+
+	var blocks = game_count_blocks(state, pull_y, pull_x, -dy, -dx, false);
+	if (util_greater_than(blocks, state.level.rules.pull_strength)) {
+		blocks = state.level.rules.pull_strength;
+	}
+
+	// #.@xxx.. → #@xxx...
+	// notice how we only need to move the player and one block
+	state.map[state.y][state.x] = TILE_BLOCK;
+	state.map[state.y - dy * blocks][state.x - dx * blocks] = TILE_EMPTY;
+	state.y = new_y;
+	state.x = new_x;
+
+	game_do_gravity(state)
+
+	return true;
+}
+
+function attempt_purp(state, dy, dx, new_y, new_x) {
+	// purping
+	util_assert(!state.level.rules.simple_path);
+
+	if (state.level.rules.purp_strength === 0) {
+		// prevent case where you can try purping with strength 0,
+		// resulting in plain movement (as long as you're facing a block)
+		return false;
+	}
+
+	if (!game_coords_valid(state, new_y, new_x)
+		|| (state.map[new_y][new_x] !== TILE_EMPTY)) {
+		// nowhere to move into
+		return false;
+	}
+
+	// for each purp interface
+	for (var i=0; i<2; ++i)
+	{
+		var purp_dy = i == 0 ? dx : -dx;
+		var purp_dx = i == 0 ? -dy : dy;
+		var purp_y = state.y + purp_dy;
+		var purp_x = state.x + purp_dx;
+
+		if (!game_coords_valid(state, purp_y, purp_x) || state.map[purp_y][purp_x] !== TILE_BLOCK) {
+			// only blocks can be purped
+			continue;
+		}
+
+		var blocks = game_count_blocks(state, purp_y, purp_x, purp_dy, purp_dx, true, dy, dx);
+		if (util_greater_than(blocks, state.level.rules.purp_strength)) {
+			blocks = state.level.rules.purp_strength;
+		}
+
+		// we need to move every single block that can move, as they move to the side
+		for (var b=1; b<=blocks; ++b)
+		{
+			state.map[state.y + purp_dy * b][state.x + purp_dx * b] = TILE_EMPTY;
+			state.map[state.y + purp_dy * b + dy][state.x + purp_dx * b + dx] = TILE_BLOCK;
+		}		
+	}
+	
+	state.y = new_y;
+	state.x = new_x;
+	
+	game_do_gravity(state)
+
+	return true;
+}
+
+function game_move(state, is_pull, is_purp, dy, dx) {
     // (State, bool, int, int) -> bool
     // mutates state, returns true iff move was valid
 
@@ -120,149 +213,114 @@ function game_move(state, is_pull, dy, dx) {
     if (!game_coords_valid(state, new_y, new_x)) {
         return false;
     }
+	
+    if (is_pull && attempt_pull(state, dy, dx, new_y, new_x))
+		return true;
+	
+	if (is_purp && attempt_purp(state, dy, dx, new_y, new_x))
+		return true;
+	
+	// pushing
+	switch (state.map[new_y][new_x]) {
+		case TILE_FIXED:
+			return false;
+		break;
+		case TILE_FINISH:
+			state.won = true;
+			return true;
+		break;
+		case TILE_EMPTY:
+			if (state.level.rules.simple_path) {
+				state.map[state.y][state.x] = TILE_FIXED;
+			}
 
-    if (is_pull) {
-        // pulling
-        util_assert(!state.level.rules.simple_path);
+			state.y = new_y;
+			state.x = new_x;
 
-        if (state.level.rules.pull_strength === 0) {
-            // prevent case where you can try pulling with strength 0,
-            // resulting in plain movement (as long as you're facing a block)
-            return false;
-        }
+			game_do_gravity(state);
 
-        if (!game_coords_valid(state, new_y, new_x)
-            || (state.map[new_y][new_x] !== TILE_EMPTY)) {
-            // nowhere to move into
-            return false;
-        }
+			return true;
+		break;
+		case TILE_BLOCK:
+			var blocks = game_count_blocks(state, new_y, new_x, dy, dx, false);
+			if (util_greater_than(blocks, state.level.rules.push_strength)) {
+				return false;
+			}
 
-        var pull_y = state.y - dy;
-        var pull_x = state.x - dx;
+			switch (state.level.rules.push_slide) {
+				case SLIDE_NONE:
+				case SLIDE_MOVED:
+					// check if there's space after the last block
+					var empty_y = state.y + dy * (blocks + 1);
+					var empty_x = state.x + dx * (blocks + 1);
 
-        if (state.map[pull_y][pull_x] !== TILE_BLOCK) {
-            // only blocks can be pulled
-            return false;
-        }
+					if (!game_coords_valid(state, empty_y, empty_x)
+						|| (state.map[empty_y][empty_x] !== TILE_EMPTY)) {
+						return false;
+					}
 
-        var blocks = game_count_blocks(state, pull_y, pull_x, -dy, -dx);
-        if (util_greater_than(blocks, state.level.rules.pull_strength)) {
-            blocks = state.level.rules.pull_strength;
-        }
+					// figure out how far we'll be pushing them
+					var steps;
+					if (state.level.rules.push_slide === SLIDE_MOVED) {
+						steps = 0;
+						while (game_coords_valid(state, empty_y, empty_x)
+							   && (state.map[empty_y][empty_x] === TILE_EMPTY)) {
+							steps += 1;
+							empty_y += dy;
+							empty_x += dx;
+						}
+					} else {
+						steps = 1;
+					}
 
-        // #.@xxx.. → #@xxx...
-        // notice how we only need to move the player and one block
-        state.map[state.y][state.x] = TILE_BLOCK;
-        state.map[state.y - dy * blocks][state.x - dx * blocks] = TILE_EMPTY;
-        state.y = new_y;
-        state.x = new_x;
+					game_move_blocks(state, new_y, new_x, dy, dx, blocks, steps);
+				break;
+				case SLIDE_ALL:
+					// completely different logic here: just count how many
+					// blocks there are in line of sight and push them to the end
+					var blocks = 0;
+					var empties = 0;
+					var line_y = new_y;
+					var line_x = new_x;
 
-        game_do_gravity(state)
+					while (game_coords_valid(state, line_y, line_x)
+						   && ((state.map[line_y][line_x] === TILE_EMPTY)
+							   || (state.map[line_y][line_x] === TILE_BLOCK))) {
+						if (state.map[line_y][line_x] === TILE_BLOCK) {
+							blocks += 1;
+						} else {
+							empties += 1;
+						}
+						line_y += dy;
+						line_x += dx;
+					}
+					// note: the while loop will stop on first *occupied* block
 
-        return true;
-    } else {
-        // pushing
-        switch (state.map[new_y][new_x]) {
-            case TILE_FIXED:
-                return false;
-            break;
-            case TILE_FINISH:
-                state.won = true;
-                return true;
-            break;
-            case TILE_EMPTY:
-                if (state.level.rules.simple_path) {
-                    state.map[state.y][state.x] = TILE_FIXED;
-                }
+					if (empties === 0) {
+						// there's nowhere to actually move the blocks;
+						return false;
+					}
 
-                state.y = new_y;
-                state.x = new_x;
+					var line_y = state.y + dy;
+					var line_x = state.x + dx;
+					for (var i = 0; i < blocks + empties; ++i) {
+						state.map[line_y][line_x] = (i < empties) ? TILE_EMPTY : TILE_BLOCK;
+						line_y += dy;
+						line_x += dx;
+					}
+				break;
+			}
 
-                game_do_gravity(state);
+			if (state.level.rules.simple_path) {
+				state.map[state.y][state.x] = TILE_FIXED;
+			}
 
-                return true;
-            break;
-            case TILE_BLOCK:
-                var blocks = game_count_blocks(state, new_y, new_x, dy, dx);
-                if (util_greater_than(blocks, state.level.rules.push_strength)) {
-                    return false;
-                }
+			state.y = new_y;
+			state.x = new_x;
 
-                switch (state.level.rules.push_slide) {
-                    case SLIDE_NONE:
-                    case SLIDE_MOVED:
-                        // check if there's space after the last block
-                        var empty_y = state.y + dy * (blocks + 1);
-                        var empty_x = state.x + dx * (blocks + 1);
+			if (state.level.rules.push_slide === SLIDE_NONE) game_do_gravity(state);
 
-                        if (!game_coords_valid(state, empty_y, empty_x)
-                            || (state.map[empty_y][empty_x] !== TILE_EMPTY)) {
-                            return false;
-                        }
-
-                        // figure out how far we'll be pushing them
-                        var steps;
-                        if (state.level.rules.push_slide === SLIDE_MOVED) {
-                            steps = 0;
-                            while (game_coords_valid(state, empty_y, empty_x)
-                                   && (state.map[empty_y][empty_x] === TILE_EMPTY)) {
-                                steps += 1;
-                                empty_y += dy;
-                                empty_x += dx;
-                            }
-                        } else {
-                            steps = 1;
-                        }
-
-                        game_move_blocks(state, new_y, new_x, dy, dx, blocks, steps);
-                    break;
-                    case SLIDE_ALL:
-                        // completely different logic here: just count how many
-                        // blocks there are in line of sight and push them to the end
-                        var blocks = 0;
-                        var empties = 0;
-                        var line_y = new_y;
-                        var line_x = new_x;
-
-                        while (game_coords_valid(state, line_y, line_x)
-                               && ((state.map[line_y][line_x] === TILE_EMPTY)
-                                   || (state.map[line_y][line_x] === TILE_BLOCK))) {
-                            if (state.map[line_y][line_x] === TILE_BLOCK) {
-                                blocks += 1;
-                            } else {
-                                empties += 1;
-                            }
-                            line_y += dy;
-                            line_x += dx;
-                        }
-                        // note: the while loop will stop on first *occupied* block
-
-                        if (empties === 0) {
-                            // there's nowhere to actually move the blocks;
-                            return false;
-                        }
-
-                        var line_y = state.y + dy;
-                        var line_x = state.x + dx;
-                        for (var i = 0; i < blocks + empties; ++i) {
-                            state.map[line_y][line_x] = (i < empties) ? TILE_EMPTY : TILE_BLOCK;
-                            line_y += dy;
-                            line_x += dx;
-                        }
-                    break;
-                }
-
-                if (state.level.rules.simple_path) {
-                    state.map[state.y][state.x] = TILE_FIXED;
-                }
-
-                state.y = new_y;
-                state.x = new_x;
-
-                if (state.level.rules.push_slide === SLIDE_NONE) game_do_gravity(state);
-
-                return true;
-            break;
-        }
-    }
+			return true;
+		break;
+	}
 }
