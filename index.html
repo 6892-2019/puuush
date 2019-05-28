@@ -39,6 +39,7 @@
     }
 
     function start_game() {
+        $('start_button').blur();
         var form = $('level');
 
         try {
@@ -155,7 +156,7 @@ div,textarea {
                 <label><input type='checkbox' name='simple_path'> Visited blocks fall</label>
                 <label><input type='checkbox' name='gravity'> Gravity (requires no sliding)</label>
             </div>
-            <button type='button' onclick='start_game()'>start</button>
+            <button type='button' id='start_button' onclick='start_game()'>start</button>
         </form>
     </div>
     <hr>
