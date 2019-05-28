@@ -46,9 +46,9 @@
             start_y: map_details.start_y,
             start_x: map_details.start_x,
             rules: {
-                push_strength: parseInt(form.elements.push_strength.value),
-                pull_strength: parseInt(form.elements.pull_strength.value),
-				purp_strength: parseInt(form.elements.purp_strength.value),
+                push_strength: parseStrength(form.elements.push_strength.value),
+                pull_strength: parseStrength(form.elements.pull_strength.value),
+				purp_strength: parseStrength(form.elements.purp_strength.value),
                 push_slide: parseInt(form.elements.push_slide.value),
                 pull_slide: parseInt(form.elements.pull_slide.value),
                 purp_slide: parseInt(form.elements.purp_slide.value),
@@ -66,6 +66,11 @@
 
         ui_resize_canvas($('game_canvas'), cur_state);
         redraw();
+    }
+
+    function parseStrength(s) {
+        var x = parseInt(s);
+        return x >= 0 ? x : Infinity;
     }
 
     function init() {

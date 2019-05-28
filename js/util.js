@@ -32,8 +32,3 @@ function util_assert(cond) {
         throw 'assertion failed';
     }
 }
-
-function util_greater_than(a, b) {
-    // (int, int) -> bool
-    return (b !== -1) && ((a === -1) || (a > b));
-}

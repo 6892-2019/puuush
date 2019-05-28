@@ -137,7 +137,7 @@ function game_push(state, dy, dx) {
     // (State, int, int) -> undefined
     // mutates state
     var blocks = game_count_blocks(state, state.y + dy, state.x + dx, dy, dx);
-    if (util_greater_than(blocks, state.level.rules.push_strength)) {
+    if (blocks > state.level.rules.push_strength) {
         return;
     }
 
