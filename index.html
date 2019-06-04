@@ -95,7 +95,7 @@
         document.addEventListener('keydown', function (e) {
             $('is_pull').checked = e.shiftKey;
             switch (e.code) {
-                case 'Space':
+                case 'KeyP':
                     $('is_purp').checked = true;
                 break;
             }
@@ -103,7 +103,7 @@
 		document.addEventListener('keyup', function (e) {
             $('is_pull').checked = e.shiftKey;
 			switch (e.code) {
-				case 'Space':
+				case 'KeyP':
                     $('is_purp').checked = false;
 				break;
 			}
@@ -186,7 +186,7 @@ div,textarea {
         <input type='checkbox' id='is_pull'> Pull (Shift)</label>
     </div>
 	<div>
-        <input type='checkbox' id='is_purp'> Purp (Space)</label>
+        <input type='checkbox' id='is_purp'> Purp (P)</label>
     </div>
     <canvas id='game_canvas'></canvas>
     <pre id='game_text'></pre>
