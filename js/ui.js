@@ -136,3 +136,8 @@ function ui_redraw_canvas(canvas, state) {
     ctx.drawImage(CANVAS_TILES['player'],
         state.x * CANVAS_TILE_SIZE, state.y * CANVAS_TILE_SIZE);
 }
+
+function ui_scroll_player_into_view(div, state) {
+    div.scrollTop = CANVAS_TILE_SIZE * (state.y + 0.5) - div.clientHeight / 2;
+    div.scrollLeft = CANVAS_TILE_SIZE * (state.x + 0.5) - div.clientWidth / 2;
+}

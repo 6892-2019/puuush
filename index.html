@@ -26,14 +26,19 @@
         ui_redraw_canvas($('game_canvas'), cur_state);
     }
 
+    function scroll_canvas() {
+        ui_scroll_player_into_view($('canvas_wrapper'), cur_state);
+    }
+
     function redraw() {
         redraw_text();
         redraw_canvas();
+        scroll_canvas();
         if (gif !== undefined)
             gif.addFrame($('game_canvas').getContext('2d'));
     }
 
-    function start_game() {
+    function start_game(scroll_to_canvas) {
         $('start_button').blur();
         var form = $('level');
 
@@ -71,6 +76,9 @@
 
         ui_resize_canvas($('game_canvas'), cur_state);
         redraw();
+
+        if (scroll_to_canvas)
+            $('canvas_wrapper').scrollIntoView({block: 'nearest', behavior: 'smooth'});
     }
 
     function parseStrength(s) {
@@ -108,7 +116,7 @@
             $('is_pull').checked = e.shiftKey;
             $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'];
         });
-        start_game();
+        start_game(false);
     }
 
     function move(dy, dx) {
@@ -159,7 +167,7 @@
     </script>
     <link href='./css/main.css' rel='stylesheet'>
 </head>
-<body onload='init()'>
+<body onload='init()' onresize='scroll_canvas()'>
     <div>
         <form id='level'>
             <div id='map_column'>
@@ -184,21 +192,21 @@
                     <div>Push</div>
                     <label><input type='number' min='-1' value='1' length='3' name='push_strength' class='strength'></label>
                     <select name='push_slide'>
-                        <option value='0' selected">No sliding</option>
+                        <option value='0' selected>No sliding</option>
                         <option value='1'>Moved blocks slide</option>
                         <option value='2'>All blocks in path slide</option>
                     </select>
                     <div>Pull</div>
                     <label><input type='number' min='-1' value='1' length='3' name='pull_strength' class='strength'></label>
                     <select name='pull_slide'>
-                        <option value='0' selected">No sliding</option>
+                        <option value='0' selected>No sliding</option>
                         <option value='1' disabled>Moved blocks slide</option>
                         <option value='2' disabled>All blocks in path slide</option>
                     </select>
                     <div>Purp</div>
                     <label><input type='number' min='-1' value='1' length='3' name='purp_strength' class='strength'></label>
                     <select name='purp_slide'>
-                        <option value='0' selected">No sliding</option>
+                        <option value='0' selected>No sliding</option>
                         <option value='1'>Moved blocks slide</option>
                         <option value='2'>All blocks in path slide</option>
                     </select>
@@ -207,7 +215,7 @@
                 <label><input type='checkbox' name='simple_path'> Visited blocks disappear</label>
                 <label><input type='checkbox' name='gravity'> Gravity</label>
                 <div class='spacer'></div>
-                <button type='button' id='start_button' onclick='start_game()'>start</button>
+                <button type='button' id='start_button' onclick='start_game(true)'>start</button>
             </div>
         </form>
     </div>
