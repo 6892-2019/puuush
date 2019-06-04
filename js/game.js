@@ -94,13 +94,14 @@ function game_do_gravity(state) {
 function game_try_move_block(state, y, x, dy, dx, slide_rule) {
     // (State, int, int, int, int, SLIDE_) -> bool
     // mutates state, returns true if successful
-    if (game_tile_at(state, y, x) !== TILE_BLOCK ||
-        game_tile_at(state, y + dy, x + dx) !== TILE_EMPTY) {
+    if (game_tile_at(state, y, x) !== TILE_BLOCK) {
         return false;
     }
 
     switch (slide_rule) {
         case SLIDE_NONE:
+            if (game_tile_at(state, y + dy, x + dx) !== TILE_EMPTY)
+                return false;
             state.map[y][x] = TILE_EMPTY;
             state.map[y + dy][x + dx] = TILE_BLOCK;
         break;
@@ -109,7 +110,7 @@ function game_try_move_block(state, y, x, dy, dx, slide_rule) {
             for (var i = 1;; ++i) {
                 if (game_tile_at(state, y + dy * i, x + dx * i) !== TILE_EMPTY) {
                     state.map[y + dy * (i - 1)][x + dx * (i - 1)] = TILE_BLOCK;
-                    break;
+                    return i > 1;
                 }
             }
         break;
@@ -125,7 +126,7 @@ function game_try_move_block(state, y, x, dy, dx, slide_rule) {
                     for (var j = 1; j <= blocks; j++) {
                         state.map[y + dy * (i - j)][x + dx * (i - j)] = TILE_BLOCK;
                     }
-                    break;
+                    return i > 1;
                 }
             }
         break;
