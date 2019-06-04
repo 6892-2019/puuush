@@ -1,0 +1,14 @@
+tt {
+    border: 1px solid black;
+    background: #ddd;
+    padding: 2px;
+}
+
+div,textarea {
+    margin-bottom: 7px;
+}
+
+.credits {
+    margin-top: 5px;
+    font-size: smaller;
+}
