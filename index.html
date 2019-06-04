@@ -226,10 +226,12 @@
     <div>
         <input type='checkbox' id='is_purp'> Purp (Space or P)</label>
     </div>
-    <canvas id='game_canvas'></canvas>
+    <div id='canvas_wrapper'>
+        <canvas id='game_canvas'></canvas>
+    </div>
     <pre id='game_text'></pre>
     <button type='button' id='gif_button' onclick='record_gif()'>Record GIF</button>
-    <div><img id='gif_output' /></div>
+    <div id='gif_wrapper'><img id='gif_output' /></div>
     <div class='credits'>penguin icon by <a href='https://icons8.com' rel='noreferrer'>icons8.com</a>, thanks!</div>
     <div class='credits'>GIF recorder powered by <a href='https://github.com/antimatter15/jsgif'>jsgif</a>.</div>
 </body>

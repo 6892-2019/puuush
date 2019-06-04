@@ -80,6 +80,14 @@ tt {
 
 
 
+#canvas_wrapper, #gif_wrapper {
+    max-width: 100vw;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+
+
 .credits {
     margin-top: 5px;
     font-size: smaller;
