@@ -3,6 +3,10 @@
 <head>
     <meta charset='utf-8'>
     <title>puuush</title>
+    <script type="text/javascript" src="./js/jsgif/LZWEncoder.js"></script>
+    <script type="text/javascript" src="./js/jsgif/NeuQuant.js"></script>
+    <script type="text/javascript" src="./js/jsgif/GIFEncoder.js"></script>
+    <script type="text/javascript" src="./js/jsgif/b64.js"></script>
     <script src='./js/util.js'></script>
     <script src='./js/game.js'></script>
     <script src='./js/ui.js'></script>
@@ -25,6 +29,8 @@
     function redraw() {
         redraw_text();
         redraw_canvas();
+        if (gif !== undefined)
+            gif.addFrame($('game_canvas').getContext('2d'));
     }
 
     function start_game() {
@@ -108,6 +114,31 @@
         game_move(cur_state, $('is_pull').checked, $('is_purp').checked, dy, dx);
         redraw();
     }
+
+    var gif = undefined;
+    function record_gif() {
+        if (gif === undefined) {
+            // start gif
+            gif = new GIFEncoder();
+            gif.setRepeat(0);
+            gif.setDelay(200);
+            gif.start();
+            gif.addFrame($('game_canvas').getContext('2d'));
+            $('gif_button').innerText = 'Stop Recording';
+            $('gif_button').blur();
+        }
+        else {
+            // stop gif
+            gif.addFrame($('game_canvas').getContext('2d'));
+            gif.finish();
+            var binary_gif = gif.stream().getData();
+            var data_url = 'data:image/gif;base64,'+encode64(binary_gif);
+            $('gif_output').src = data_url;
+            $('gif_button').innerText = 'Record GIF';
+            $('gif_button').blur();
+            gif = undefined;
+        }
+    }
     </script>
     <style>
 tt {
@@ -184,6 +215,9 @@ div,textarea {
     </div>
     <canvas id='game_canvas'></canvas>
     <pre id='game_text'></pre>
+    <button type='button' id='gif_button' onclick='record_gif()'>Record GIF</button>
+    <div><img id='gif_output' /></div>
     <div class='credits'>penguin icon by <a href='https://icons8.com' rel='noreferrer'>icons8.com</a>, thanks!</div>
+    <div class='credits'>GIF recorder powered by <a href='https://github.com/antimatter15/jsgif'>jsgif</a></div>
 </body>
 </html>
