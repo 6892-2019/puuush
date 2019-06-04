@@ -13,7 +13,7 @@
     flex-flow: row wrap;
 }
 
-#map-column {
+#map_column {
     width: 16rem;
     height: auto;
     margin-bottom: 1em;
@@ -26,7 +26,7 @@
     overflow-y: hidden;
 }
 
-.legend-item {
+.legend_item {
     margin: 4px 0;
 }
 
@@ -46,7 +46,7 @@ tt {
     width: 2em;
 }
 
-#settings-column {
+#settings_column {
     width: 16rem;
     padding: 3px;
     margin-bottom: 1em;
@@ -54,12 +54,12 @@ tt {
     flex-flow: column nowrap;
 }
 
-#move-settings {
+#move_settings {
     display: grid;
     grid-template-columns: repeat(3, auto);
 }
 
-#move-settings>* {
+#move_settings>* {
     align-self: center;
     margin: 2px 0;
 }
@@ -69,11 +69,11 @@ tt {
     width: 3em;
 }
 
-#strength-hint {
+#strength_hint {
     margin-bottom: 0.5em;
 }
 
-#settings-column>.spacer {
+#settings_column>.spacer {
     height: 0.5em;
     flex-grow: 1;
 }

@@ -144,7 +144,7 @@
     var legend_visible = false;
     function toggle_legend() {
         var style = $('legend').style;
-        var button = $('legend-button');
+        var button = $('legend_button');
         if (legend_visible) {
             style.maxHeight = '0';
             style.opacity = '0';
@@ -162,14 +162,14 @@
 <body onload='init()'>
     <div>
         <form id='level'>
-            <div id='map-column'>
-                <button type='button' id='legend-button' onclick='toggle_legend()'>Show legend</button>
+            <div id='map_column'>
+                <button type='button' id='legend_button' onclick='toggle_legend()'>Show legend</button>
                 <div id='legend'>
-                    <div class='legend-item'><tt>.</tt> = blank space</div>
-                    <div class='legend-item'><tt>#</tt> = fixed block</div>
-                    <div class='legend-item'><tt>x</tt> = movable block</div>
-                    <div class='legend-item'><tt>S</tt> = start</div>
-                    <div class='legend-item'><tt>F</tt> = finish</div>
+                    <div class='legend_item'><tt>.</tt> = blank space</div>
+                    <div class='legend_item'><tt>#</tt> = fixed block</div>
+                    <div class='legend_item'><tt>x</tt> = movable block</div>
+                    <div class='legend_item'><tt>S</tt> = start</div>
+                    <div class='legend_item'><tt>F</tt> = finish</div>
                 </div>
                 <textarea name='map' id='map' rows='10' cols='20' wrap='off'>
 .....xx.............
@@ -179,8 +179,8 @@
 ..x.xx.xxx.xxxx...#.</textarea>
             </div>
             <div class='spacer'></div>
-            <div id='settings-column'>
-                <div id='move-settings'>
+            <div id='settings_column'>
+                <div id='move_settings'>
                     <div>Push</div>
                     <label><input type='number' min='-1' value='1' length='3' name='push_strength' class='strength'></label>
                     <select name='push_slide'>
@@ -203,7 +203,7 @@
                         <option value='2'>All blocks in path slide</option>
                     </select>
                 </div>
-                <div id='strength-hint'>(0 to disable, -1 for infinity)</div>
+                <div id='strength_hint'>(0 to disable, -1 for infinity)</div>
                 <label><input type='checkbox' name='simple_path'> Visited blocks disappear</label>
                 <label><input type='checkbox' name='gravity'> Gravity</label>
                 <div class='spacer'></div>
