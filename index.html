@@ -47,7 +47,7 @@
             rules: {
                 push_strength: parseStrength(form.elements.push_strength.value),
                 pull_strength: parseStrength(form.elements.pull_strength.value),
-				purp_strength: parseStrength(form.elements.purp_strength.value),
+                purp_strength: parseStrength(form.elements.purp_strength.value),
                 push_slide: parseInt(form.elements.push_slide.value),
                 pull_slide: parseInt(form.elements.pull_slide.value),
                 purp_slide: parseInt(form.elements.purp_slide.value),
@@ -153,7 +153,7 @@ div,textarea {
                 <label><input type='radio' name='pull_slide' value='1' disabled> moved blocks slide</label>
                 <label><input type='radio' name='pull_slide' value='2' disabled> all blocks in path slide</label>.
             </div>
-			<div><label>Purp strength: <input type='number' min='-1' value='1' length='3' name='purp_strength'> (0 to disable, -1 for infinity)</label></div>
+            <div><label>Purp strength: <input type='number' min='-1' value='1' length='3' name='purp_strength'> (0 to disable, -1 for infinity)</label></div>
             <div>Purp sliding behavior:
                 <label><input type='radio' name='purp_slide' value='0' checked
                     onclick="fix_gravity_button()"> no sliding</label>,
@@ -179,7 +179,7 @@ div,textarea {
     <div>
         <input type='checkbox' id='is_pull'> Pull (Shift)</label>
     </div>
-	<div>
+    <div>
         <input type='checkbox' id='is_purp'> Purp (Space or P)</label>
     </div>
     <canvas id='game_canvas'></canvas>
