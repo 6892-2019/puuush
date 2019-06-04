@@ -8,16 +8,39 @@
     height: 0;
 }
 
-#level {
+.row {
     display: flex;
-    flex-flow: row wrap;
+    flex-direction: row;
+    margin: 1em 0;
 }
 
-#map_column {
-    width: 16rem;
-    height: auto;
-    margin-bottom: 1em;
+.row>.spacer {
+    width: 2em;
+    height: 0.5em;
+    flex-shrink: 1;
 }
+
+.panel {
+    padding: 3px;
+    height: auto;
+    flex-grow: 1;
+    flex-basis: 16em;
+    min-width: 16em;
+    max-width: 24em;
+}
+
+@media (max-width: 33em) {
+    .row {
+        flex-direction: column;
+        align-items: center;
+    }
+    .panel {
+        flex-basis: initial;
+    }
+}
+
+
+
 
 #legend {
     margin: 4px 0;
@@ -39,24 +62,19 @@ tt {
 #map {
     letter-spacing: 0.25em;
     width: 100%;
-    height: 12rem;
+    height: 12em;
 }
 
-#level>.spacer {
-    width: 2em;
-}
-
-#settings_column {
-    width: 16rem;
-    padding: 3px;
-    margin-bottom: 1em;
+#settings_panel {
     display: flex;
-    flex-flow: column nowrap;
+    flex-direction: column;
 }
 
 #move_settings {
     display: grid;
-    grid-template-columns: repeat(3, auto);
+    grid-template-columns: max-content max-content auto;
+    grid-template-rows: repeat(3, 1fr);
+    grid-column-gap: 3px;
 }
 
 #move_settings>* {
@@ -73,29 +91,25 @@ tt {
     margin-bottom: 0.5em;
 }
 
-#settings_column>.spacer {
+#settings_panel>.spacer {
     height: 0.5em;
     flex-grow: 1;
 }
 
 
 
-#controls {
-    width: max-content;
-    margin: 1em 0;
+#movement_panel {
     display: grid;
-    grid-template-columns: repeat(3, 1fr) auto;
+    grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 1fr);
     grid-gap: 2px;
     align-items: center;
 }
 
-#pull_label {
-    grid-area: 1/4;
-}
-
-#purp_label {
-    grid-area: 2/4;
+#extra_controls_panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 
@@ -105,8 +119,6 @@ tt {
     max-height: calc(100vh - 5em);
     overflow: auto;
 }
-
-
 
 .credits {
     margin-top: 5px;

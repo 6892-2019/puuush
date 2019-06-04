@@ -168,9 +168,9 @@
     <link href='./css/main.css' rel='stylesheet'>
 </head>
 <body onload='init()' onresize='scroll_canvas()'>
-    <div>
-        <form id='level'>
-            <div id='map_column'>
+    <form id='level'>
+        <div class='row'>
+            <div class='panel'>
                 <button type='button' id='legend_button' onclick='toggle_legend()'>Show legend</button>
                 <div id='legend'>
                     <div class='legend_item'><tt>.</tt> = blank space</div>
@@ -187,7 +187,7 @@
 ..x.xx.xxx.xxxx...#.</textarea>
             </div>
             <div class='spacer'></div>
-            <div id='settings_column'>
+            <div id='settings_panel' class='panel'>
                 <div id='move_settings'>
                     <div>Push</div>
                     <label><input type='number' min='-1' value='1' length='3' name='push_strength' class='strength'></label>
@@ -217,22 +217,23 @@
                 <div class='spacer'></div>
                 <button type='button' id='start_button' onclick='start_game(true)'>start</button>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
     <hr>
-    <div id='controls'>
-        <div></div>
-        <button onclick='move(-1, 0)'>↑ (W)</button>
-        <div></div>
-        <button onclick='move(0, -1)'>← (A)</button>
-        <button onclick='move(1, 0)'>↓ (S)</button>
-        <button onclick='move(0, 1)'>→ (D)</button>
-        <label id='pull_label'><input type='checkbox' id='is_pull'> Pull (Shift)</label>
-        <label id='purp_label'><input type='checkbox' id='is_purp'> Purp (Space or P)</label>
-    </div>
-    <div>
-    </div>
-    <div>
+    <div id='controls' class='row'>
+        <div id='movement_panel' class='panel'>
+            <div></div>
+            <button onclick='move(-1, 0)'>↑(W)</button>
+            <div></div>
+            <button onclick='move(0, -1)'>←(A)</button>
+            <button onclick='move(1, 0)'>↓(S)</button>
+            <button onclick='move(0, 1)'>→(D)</button>
+        </div>
+        <div class='spacer'></div>
+        <div id='extra_controls_panel' class='panel'>
+            <div><label id='pull_label'><input type='checkbox' id='is_pull'> Pull (Shift)</label></div>
+            <div><label id='purp_label'><input type='checkbox' id='is_purp'> Purp (Space or P)</label></div>
+        </div>
     </div>
     <div id='canvas_wrapper'>
         <canvas id='game_canvas'></canvas>
