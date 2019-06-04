@@ -9,7 +9,6 @@
     <script>
     'use strict';
     var cur_state;
-	var space_held = false;
 
     function $(id) {
         return document.getElementById(id);
@@ -92,22 +91,17 @@
                 break;
             }
         });
+        var pressed_keys = {};
         document.addEventListener('keydown', function (e) {
+            pressed_keys[e.code] = true;
             $('is_pull').checked = e.shiftKey;
-            switch (e.code) {
-                case 'KeyP':
-                    $('is_purp').checked = true;
-                break;
-            }
+            $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'];
         });
-		document.addEventListener('keyup', function (e) {
+        document.addEventListener('keyup', function (e) {
+            pressed_keys[e.code] = false;
             $('is_pull').checked = e.shiftKey;
-			switch (e.code) {
-				case 'KeyP':
-                    $('is_purp').checked = false;
-				break;
-			}
-		});
+            $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'];
+        });
     }
 
     function move(dy, dx) {
@@ -186,7 +180,7 @@ div,textarea {
         <input type='checkbox' id='is_pull'> Pull (Shift)</label>
     </div>
 	<div>
-        <input type='checkbox' id='is_purp'> Purp (P)</label>
+        <input type='checkbox' id='is_purp'> Purp (Space or P)</label>
     </div>
     <canvas id='game_canvas'></canvas>
     <pre id='game_text'></pre>
