@@ -80,6 +80,26 @@ tt {
 
 
 
+#controls {
+    width: max-content;
+    margin: 1em 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) auto;
+    grid-template-rows: repeat(2, 1fr);
+    grid-gap: 2px;
+    align-items: center;
+}
+
+#pull_label {
+    grid-area: 1/4;
+}
+
+#purp_label {
+    grid-area: 2/4;
+}
+
+
+
 #canvas_wrapper, #gif_wrapper {
     max-width: 100vw;
     max-height: 90vh;

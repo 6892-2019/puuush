@@ -212,19 +212,19 @@
         </form>
     </div>
     <hr>
-    <div>
-        Move:
-        <button onclick='move(false, false, 0, -1)'>←</button>
-        <button onclick='move(false, false, 1, 0)'>↓</button>
-        <button onclick='move(false, false, -1, 0)'>↑</button>
-        <button onclick='move(false, false, 0, 1)'>→</button>
-        (or WASD)
+    <div id='controls'>
+        <div></div>
+        <button onclick='move(-1, 0)'>↑ (W)</button>
+        <div></div>
+        <button onclick='move(0, -1)'>← (A)</button>
+        <button onclick='move(1, 0)'>↓ (S)</button>
+        <button onclick='move(0, 1)'>→ (D)</button>
+        <label id='pull_label'><input type='checkbox' id='is_pull'> Pull (Shift)</label>
+        <label id='purp_label'><input type='checkbox' id='is_purp'> Purp (Space or P)</label>
     </div>
     <div>
-        <input type='checkbox' id='is_pull'> Pull (Shift)</label>
     </div>
     <div>
-        <input type='checkbox' id='is_purp'> Purp (Space or P)</label>
     </div>
     <div id='canvas_wrapper'>
         <canvas id='game_canvas'></canvas>
