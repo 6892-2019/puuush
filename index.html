@@ -81,27 +81,30 @@
     function init() {
         ui_preload_canvas_tiles();
 
-        document.addEventListener('keypress', function (e) {
-            switch (e.code) {
-                case 'KeyW':
-                    move(-1, 0);
-                break;
-                case 'KeyA':
-                    move(0, -1);
-                break;
-                case 'KeyS':
-                    move(1, 0);
-                break;
-                case 'KeyD':
-                    move(0, 1);
-                break;
-            }
-        });
         var pressed_keys = {};
         document.addEventListener('keydown', function (e) {
             pressed_keys[e.code] = true;
             $('is_pull').checked = e.shiftKey;
             $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'];
+
+            switch (e.code) {
+                case 'KeyW':
+                case 'ArrowUp':
+                    move(-1, 0);
+                break;
+                case 'KeyA':
+                case 'ArrowLeft':
+                    move(0, -1);
+                break;
+                case 'KeyS':
+                case 'ArrowDown':
+                    move(1, 0);
+                break;
+                case 'KeyD':
+                case 'ArrowRight':
+                    move(0, 1);
+                break;
+            }
         });
         document.addEventListener('keyup', function (e) {
             pressed_keys[e.code] = false;
@@ -206,7 +209,7 @@ div,textarea {
         <button onclick='move(1, 0)'>↓</button>
         <button onclick='move(-1, 0)'>↑</button>
         <button onclick='move(0, 1)'>→</button>
-        (or WASD)
+        (WASD or arrow keys)
     </div>
     <div>
         <input type='checkbox' id='is_pull'> Pull (Shift)</label>
