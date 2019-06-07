@@ -26,14 +26,19 @@
         ui_redraw_canvas($('game_canvas'), cur_state);
     }
 
+    function scroll_canvas() {
+        ui_scroll_player_into_view($('canvas_wrapper'), cur_state);
+    }
+
     function redraw() {
         redraw_text();
         redraw_canvas();
+        scroll_canvas();
         if (gif !== undefined)
             gif.addFrame($('game_canvas').getContext('2d'));
     }
 
-    function start_game() {
+    function start_game(scroll_to_canvas) {
         $('start_button').blur();
         var form = $('level');
 
@@ -73,6 +78,9 @@
 
         ui_resize_canvas($('game_canvas'), cur_state);
         redraw();
+
+        if (scroll_to_canvas)
+            $('canvas_wrapper').scrollIntoView({block: 'nearest', behavior: 'smooth'});
     }
 
     function parseStrength(s) {
@@ -122,7 +130,7 @@
             $('is_pull').checked = e.shiftKey;
             $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'];
         });
-        start_game();
+        start_game(false);
     }
 
     function move(dy, dx) {
@@ -154,85 +162,99 @@
             gif = undefined;
         }
     }
+
+    var legend_visible = false;
+    function toggle_legend() {
+        var style = $('legend').style;
+        var button = $('legend_button');
+        if (legend_visible) {
+            style.maxHeight = '0';
+            style.opacity = '0';
+            button.innerText = 'Show legend';
+        } else {
+            style.maxHeight = '8em';
+            style.opacity = '1';
+            button.innerText = 'Hide legend';
+        }
+        legend_visible = !legend_visible;
+    }
     </script>
-    <style>
-tt {
-    border: 1px solid black;
-    background: #ddd;
-    padding: 2px;
-}
-
-div,textarea {
-    margin-bottom: 7px;
-}
-
-.credits {
-    margin-top: 5px;
-    font-size: smaller;
-}
-    </style>
+    <link href='./css/main.css' rel='stylesheet'>
 </head>
-<body onload='init()'>
-    <div>
-        <form id='level'>
-            <label>
-                <div>Level geometry: (<tt>.</tt> for blank space, <tt>#</tt> for fixed blocks, <tt>x</tt> for movable blocks, <tt>S</tt> for start position, <tt>F</tt> for finish)</div>
-                <textarea name='map' rows='5' cols='30' id=''>
+<body onload='init()' onresize='scroll_canvas()'>
+    <form id='level'>
+        <div class='row'>
+            <div class='panel'>
+                <button type='button' id='legend_button' onclick='toggle_legend()'>Show legend</button>
+                <div id='legend'>
+                    <div class='legend_item'><tt>.</tt> = blank space</div>
+                    <div class='legend_item'><tt>#</tt> = fixed block</div>
+                    <div class='legend_item'><tt>x</tt> = movable block</div>
+                    <div class='legend_item'><tt>S</tt> = start</div>
+                    <div class='legend_item'><tt>F</tt> = finish</div>
+                </div>
+                <textarea name='map' id='map' rows='10' cols='20' wrap='off'>
 .....xx.............
 .................xxx
 ..S..............x.F
 ..................xx
-..x.xx.xxx.xxxx...#.
-                </textarea>
-            </label>
-            <div><label>Push strength: <input type='number' min='-1' value='1' length='3' name='push_strength'> (0 to disable, -1 for infinity)</label></div>
-            <div>Push sliding behavior:
-                <label><input type='radio' name='push_slide' value='0' checked
-                    onclick="fix_gravity_button()"> no sliding</label>,
-                <label><input type='radio' name='push_slide' value='1'> moved blocks slide</label>
-                <label><input type='radio' name='push_slide' value='2'> all blocks in path slide</label>.
+..x.xx.xxx.xxxx...#.</textarea>
             </div>
-            <div><label>Pull strength: <input type='number' min='-1' value='1' length='3' name='pull_strength'> (0 to disable, -1 for infinity)</label></div>
-            <div>Pull sliding behavior:
-                <label><input type='radio' name='pull_slide' value='0' checked
-                    onclick="fix_gravity_button()"> no sliding</label>,
-                <label><input type='radio' name='pull_slide' value='1' disabled> moved blocks slide</label>
-                <label><input type='radio' name='pull_slide' value='2' disabled> all blocks in path slide</label>.
-            </div>
-            <div><label>Purp strength: <input type='number' min='-1' value='1' length='3' name='purp_strength'> (0 to disable, -1 for infinity)</label></div>
-            <div>Purp sliding behavior:
-                <label><input type='radio' name='purp_slide' value='0' checked
-                    onclick="fix_gravity_button()"> no sliding</label>,
-                <label><input type='radio' name='purp_slide' value='1'> moved blocks slide</label>
-                <label><input type='radio' name='purp_slide' value='2'> all blocks in path slide</label>.
-            </div>
-            <div>
-                <label><input type='checkbox' name='simple_path'> Visited blocks fall</label>
+            <div class='spacer'></div>
+            <div id='settings_panel' class='panel'>
+                <div id='move_settings'>
+                    <div>Push</div>
+                    <label><input type='number' min='-1' value='1' length='3' name='push_strength' class='strength'></label>
+                    <select name='push_slide'>
+                        <option value='0' selected>No sliding</option>
+                        <option value='1'>Moved blocks slide</option>
+                        <option value='2'>All blocks in path slide</option>
+                    </select>
+                    <div>Pull</div>
+                    <label><input type='number' min='-1' value='1' length='3' name='pull_strength' class='strength'></label>
+                    <select name='pull_slide'>
+                        <option value='0' selected>No sliding</option>
+                        <option value='1' disabled>Moved blocks slide</option>
+                        <option value='2' disabled>All blocks in path slide</option>
+                    </select>
+                    <div>Purp</div>
+                    <label><input type='number' min='-1' value='1' length='3' name='purp_strength' class='strength'></label>
+                    <select name='purp_slide'>
+                        <option value='0' selected>No sliding</option>
+                        <option value='1'>Moved blocks slide</option>
+                        <option value='2'>All blocks in path slide</option>
+                    </select>
+                </div>
+                <div id='strength_hint'>(0 to disable, -1 for infinity)</div>
+                <label><input type='checkbox' name='simple_path'> Visited blocks disappear</label>
                 <label><input type='checkbox' name='gravity'> Gravity</label>
+                <div class='spacer'></div>
+                <button type='button' id='start_button' onclick='start_game(true)'>start</button>
             </div>
-            <button type='button' id='start_button' onclick='start_game()'>start</button>
-        </form>
-    </div>
+        </div>
+    </form>
     <hr>
-    <div>
-        Move:
-        <button onclick='move(0, -1)'>←</button>
-        <button onclick='move(1, 0)'>↓</button>
-        <button onclick='move(-1, 0)'>↑</button>
-        <button onclick='move(0, 1)'>→</button>
-        (WASD or arrow keys)
+    <div id='controls' class='row'>
+        <div id='movement_panel' class='panel'>
+            <div></div>
+            <button onclick='move(-1, 0)'>↑(W)</button>
+            <div></div>
+            <button onclick='move(0, -1)'>←(A)</button>
+            <button onclick='move(1, 0)'>↓(S)</button>
+            <button onclick='move(0, 1)'>→(D)</button>
+        </div>
+        <div class='spacer'></div>
+        <div id='extra_controls_panel' class='panel'>
+            <div><label id='pull_label'><input type='checkbox' id='is_pull'> Pull (Shift)</label></div>
+            <div><label id='purp_label'><input type='checkbox' id='is_purp'> Purp (Space or P)</label></div>
+        </div>
     </div>
-    <div>
-        <input type='checkbox' id='is_pull'> Pull (Shift)</label>
+    <div id='canvas_wrapper'>
+        <canvas id='game_canvas'></canvas>
     </div>
-    <div>
-        <input type='checkbox' id='is_purp'> Purp (Space or P)</label>
-    </div>
-    <canvas id='game_canvas'></canvas>
     <pre id='game_text'></pre>
     <button type='button' id='gif_button' onclick='record_gif()'>Record GIF</button>
-    <div><img id='gif_output' /></div>
-    <div class='credits'>penguin icon by <a href='https://icons8.com' rel='noreferrer'>icons8.com</a>, thanks!</div>
-    <div class='credits'>GIF recorder powered by <a href='https://github.com/antimatter15/jsgif'>jsgif</a>.</div>
+    <div id='gif_wrapper'><img id='gif_output' /></div>
+    <div class='credits'>Penguin icon by <a href='https://icons8.com' rel='noreferrer'>icons8.com</a>, thanks! GIF recorder powered by <a href='https://github.com/antimatter15/jsgif'>jsgif</a>.</div>
 </body>
 </html>
