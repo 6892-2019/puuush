@@ -32,3 +32,50 @@ function util_assert(cond) {
         throw 'assertion failed';
     }
 }
+
+function _util_ignore_field(field) {
+    return !field.name || field.disabled ||
+        field.type === 'file' || field.type === 'reset' || field.type == 'submit' || field.type == 'button';
+}
+
+function _util_is_checkable(field) {
+    return field.type === 'checkbox' || field.type === 'radio';
+}
+
+function util_serialize_form(form) {
+    util_assert(typeof form === 'object' && form.nodeName === "FORM");
+
+    var vars = {};
+    for (var field of form.elements) {
+        if (_util_ignore_field(field)) continue;
+        if (!_util_is_checkable(field) || field.checked) {
+            vars[field.name] = field.value;
+        }
+    }
+
+    var strings = [];
+    for (var k in vars) {
+        strings.push(encodeURIComponent(k) + '=' + encodeURIComponent(vars[k]));
+    }
+    return strings.join('&');
+}
+
+function util_deserialize_form(form, query) {
+    util_assert(typeof form === 'object' && form.nodeName === "FORM");
+
+    var vars = {};
+    for (var v of query.split('&')) {
+        var pair = v.split('=');
+        vars[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+    }
+
+    for (var field of form.elements) {
+        if (_util_ignore_field(field)) continue;
+        if (!(field.name in vars)) continue;
+        if (_util_is_checkable(field)) {
+            field.checked = (vars[field.name] == field.value);
+        } else {
+            field.value = vars[field.name];
+        }
+    }
+}

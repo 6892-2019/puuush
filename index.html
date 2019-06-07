@@ -69,6 +69,8 @@
 
         cur_state = game_new_game(level);
 
+        location.hash = '#' + util_serialize_form(form);
+
         ui_resize_canvas($('game_canvas'), cur_state);
         redraw();
     }
@@ -80,6 +82,15 @@
 
     function init() {
         ui_preload_canvas_tiles();
+
+        if (location.hash !== '' && location.hash[0] === '#') {
+            try {
+                util_deserialize_form($('level'), location.hash.substr(1));
+            } catch (e) {
+                console.log('Error parsing the hash string:');
+                console.log(e);
+            }
+        }
 
         var pressed_keys = {};
         document.addEventListener('keydown', function (e) {
