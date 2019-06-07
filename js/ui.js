@@ -31,6 +31,12 @@ function ui_state_to_text(state) {
                 case TILE_BLOCK:
                     line.push('x');
                 break;
+                case TILE_BLOCK_V:
+                    line.push('|');
+                break;
+                case TILE_BLOCK_H:
+                    line.push('-');
+                break;
                 case TILE_FINISH:
                     line.push('F');
                 break;
@@ -68,6 +74,12 @@ function ui_parse_map(map_text) {
                 break;
                 case 'x':
                     map_line.push(TILE_BLOCK);
+                break;
+                case '|':
+                    map_line.push(TILE_BLOCK_V);
+                break;
+                case '-':
+                    map_line.push(TILE_BLOCK_H);
                 break;
                 case 's':
                     if (res.start_y !== undefined) {
@@ -108,6 +120,8 @@ function ui_preload_canvas_tiles() {
     CANVAS_TILES[TILE_EMPTY] = ui_make_image('./img/tile_empty.png');
     CANVAS_TILES[TILE_FIXED] = ui_make_image('./img/tile_fixed.png');
     CANVAS_TILES[TILE_BLOCK] = ui_make_image('./img/tile_block.png');
+    CANVAS_TILES[TILE_BLOCK_V] = ui_make_image('./img/tile_block_v.png');
+    CANVAS_TILES[TILE_BLOCK_H] = ui_make_image('./img/tile_block_h.png');
     CANVAS_TILES[TILE_FINISH] = ui_make_image('./img/tile_finish.png');
     CANVAS_TILES['player'] = ui_make_image('./img/tile_player.png');
 }

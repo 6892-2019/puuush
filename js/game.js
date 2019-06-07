@@ -3,7 +3,9 @@
 var TILE_EMPTY = 0;
 var TILE_FIXED = 1;
 var TILE_BLOCK = 2;
-var TILE_FINISH = 3;
+var TILE_BLOCK_V = 3;
+var TILE_BLOCK_H = 4;
+var TILE_FINISH = 5;
 
 var SLIDE_NONE = 0;
 var SLIDE_MOVED = 1;
@@ -60,15 +62,14 @@ function game_tile_at(state, y, x) {
         return TILE_FIXED;
 }
 
-function game_count_blocks(state, y, x, dy, dx) {
-    // (State, int, int, int, int) -> int
-    var res = 0;
-    while (game_tile_at(state, y, x) === TILE_BLOCK) {
-        y += dy;
-        x += dx;
-        res += 1;
+function game_is_movable_block(state, y, x, dy, dx) {
+    // (State, int, int, int, int) -> bool
+    // checks whether the tile can be moved in a given direction
+    switch (game_tile_at(state, y, x)) {
+        case TILE_BLOCK: return true;
+        case TILE_BLOCK_H: return dy === 0;
+        case TILE_BLOCK_V: return dx === 0
     }
-    return res;
 }
 
 function game_do_gravity(state) {
@@ -80,8 +81,8 @@ function game_do_gravity(state) {
     for (var x=0; x < state.level.width; ++x) {
         var bottom = (state.map[state.level.height-1][x] === TILE_EMPTY) ? state.level.height-1 : state.level.height-2;
         for (var y = state.level.height-2; y >= 0; --y) {
-            if (state.map[y][x] === TILE_BLOCK && bottom > y) {
-                state.map[bottom][x] = TILE_BLOCK;
+            if (game_is_movable_block(state, y, x, 1, 0) && bottom > y) {
+                state.map[bottom][x] = state.map[y][x];
                 state.map[y][x] = TILE_EMPTY;
                 --bottom;
             } else if (state.map[y][x] !== TILE_EMPTY || (y === state.y && x === state.x)) {
@@ -94,7 +95,7 @@ function game_do_gravity(state) {
 function game_try_move_block(state, y, x, dy, dx, slide_rule) {
     // (State, int, int, int, int, SLIDE_) -> bool
     // mutates state, returns true if successful
-    if (game_tile_at(state, y, x) !== TILE_BLOCK) {
+    if (!game_is_movable_block(state, y, x, dy, dx)) {
         return false;
     }
 
@@ -102,29 +103,29 @@ function game_try_move_block(state, y, x, dy, dx, slide_rule) {
         case SLIDE_NONE:
             if (game_tile_at(state, y + dy, x + dx) !== TILE_EMPTY)
                 return false;
+            state.map[y + dy][x + dx] = state.map[y][x];
             state.map[y][x] = TILE_EMPTY;
-            state.map[y + dy][x + dx] = TILE_BLOCK;
         break;
         case SLIDE_MOVED:
-            state.map[y][x] = TILE_EMPTY;
             for (var i = 1;; ++i) {
                 if (game_tile_at(state, y + dy * i, x + dx * i) !== TILE_EMPTY) {
-                    state.map[y + dy * (i - 1)][x + dx * (i - 1)] = TILE_BLOCK;
+                    state.map[y + dy * (i - 1)][x + dx * (i - 1)] = state.map[y][x];
+                    state.map[y][x] = TILE_EMPTY;
                     return i > 1;
                 }
             }
         break;
         case SLIDE_ALL:
+            var blocks = [state.map[y][x]];
             state.map[y][x] = TILE_EMPTY;
-            var blocks = 1;
             for (var i = 1;; ++i) {
-                if (game_tile_at(state, y + dy * i, x + dx * i) === TILE_BLOCK) {
+                if (game_is_movable_block(state, y + dy * i, x + dx * i, dy, dx)) {
+                    blocks.push(state.map[y + dy * i][x + dx * i]);
                     state.map[y + dy * i][x + dx * i] = TILE_EMPTY;
-                    blocks++;
                 }
                 if (game_tile_at(state, y + dy * i, x + dx * i) !== TILE_EMPTY) {
-                    for (var j = 1; j <= blocks; j++) {
-                        state.map[y + dy * (i - j)][x + dx * (i - j)] = TILE_BLOCK;
+                    for (--i; blocks.length > 0; --i) {
+                        state.map[y + dy * i][x + dx * i] = blocks.pop();
                     }
                     return i > 1;
                 }
@@ -137,7 +138,11 @@ function game_try_move_block(state, y, x, dy, dx, slide_rule) {
 function game_push(state, dy, dx) {
     // (State, int, int) -> undefined
     // mutates state
-    var blocks = game_count_blocks(state, state.y + dy, state.x + dx, dy, dx);
+
+    var blocks = 0;
+    while (game_is_movable_block(state, state.y + dy * (blocks + 1), state.x + dx * (blocks + 1), dy, dx)) {
+        blocks++;
+    }
     if (blocks > state.level.rules.push_strength) {
         return;
     }
