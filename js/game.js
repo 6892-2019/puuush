@@ -169,7 +169,7 @@ function game_pull(state, dy, dx) {
     }
 }
 
-function game_purp(state, dy, dx) {
+function game_purp(state, dy, dx, interface_) {
     // (State, int, int) -> undefined
     // mutates state
     if (game_tile_at(state, state.y + dy, state.x + dx) !== TILE_EMPTY)
@@ -177,18 +177,20 @@ function game_purp(state, dy, dx) {
 
     // for each purp interface
     for (var [purp_dy, purp_dx] of [[dx, -dy], [-dx, dy]]) {
-        // we need to move every single block that can move, as they move to the side
-        for (var i = 1; i <= state.level.rules.purp_strength; ++i) {
-            if (!game_try_move_block(state, state.y + purp_dy * i, state.x + purp_dx * i, dy, dx, state.level.rules.purp_slide)) {
-                break;
-            }
-        }
+		
+		if (interface_ === null || (interface_[0] == purp_dy && interface_[1] == purp_dx))
+			// we need to move every single block that can move, as they move to the side
+			for (var i = 1; i <= state.level.rules.purp_strength; ++i) {
+				if (!game_try_move_block(state, state.y + purp_dy * i, state.x + purp_dx * i, dy, dx, state.level.rules.purp_slide)) {
+					break;
+				}
+			}
     }
 
     return true;
 }
 
-function game_move(state, is_pull, is_purp, dy, dx) {
+function game_move(state, is_pull, is_purp, purp_interface, dy, dx) {
     // (State, bool, bool, int, int) -> bool
     // mutates state, returns true iff move was valid
 
@@ -219,7 +221,7 @@ function game_move(state, is_pull, is_purp, dy, dx) {
     if (is_pull)
         game_pull(state, dy, dx)
     if (is_purp)
-        game_purp(state, dy, dx)
+        game_purp(state, dy, dx, purp_interface)
     
     if (state.level.rules.simple_path) {
         state.map[state.y][state.x] = TILE_FIXED;

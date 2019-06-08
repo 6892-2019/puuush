@@ -13,6 +13,7 @@
     <script>
     'use strict';
     var cur_state;
+	var pressed_keys;
 
     function $(id) {
         return document.getElementById(id);
@@ -100,11 +101,11 @@
             }
         }
 
-        var pressed_keys = {};
+        pressed_keys = {};
         document.addEventListener('keydown', function (e) {
             pressed_keys[e.code] = true;
             $('is_pull').checked = e.shiftKey;
-            $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'];
+            $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'] || pressed_keys['KeyI'] || pressed_keys['KeyJ'] || pressed_keys['KeyK'] || pressed_keys['KeyL'];
 
             switch (e.code) {
                 case 'KeyW':
@@ -128,13 +129,33 @@
         document.addEventListener('keyup', function (e) {
             pressed_keys[e.code] = false;
             $('is_pull').checked = e.shiftKey;
-            $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'];
+            $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'] || pressed_keys['KeyI'] || pressed_keys['KeyJ'] || pressed_keys['KeyK'] || pressed_keys['KeyL'];
         });
         start_game(false);
     }
 
     function move(dy, dx) {
-        game_move(cur_state, $('is_pull').checked, $('is_purp').checked, dy, dx);
+		var purp_interface = null;
+		var cancel_purp = false;
+		if (dy === 0)
+		{
+			if (pressed_keys['KeyI'])
+				purp_interface = [-1, 0];
+			if (pressed_keys['KeyK'])
+				purp_interface = [1, 0];
+			if (pressed_keys['KeyJ'] || pressed_keys['KeyL'])
+				cancel_purp = true;
+		}
+		if (dx === 0)
+		{
+			if (pressed_keys['KeyJ'])
+				purp_interface = [0, -1];
+			if (pressed_keys['KeyL'])
+				purp_interface = [0, 1];
+			if (pressed_keys['KeyI'] || pressed_keys['KeyK'])
+				cancel_purp = true;
+		}
+        game_move(cur_state, $('is_pull').checked, $('is_purp').checked && !cancel_purp, purp_interface, dy, dx);
         redraw();
     }
 
@@ -248,7 +269,7 @@
         <div class='spacer'></div>
         <div id='extra_controls_panel' class='panel'>
             <div><label id='pull_label'><input type='checkbox' id='is_pull'> Pull (Shift)</label></div>
-            <div><label id='purp_label'><input type='checkbox' id='is_purp'> Purp (Space or P)</label></div>
+            <div><label id='purp_label'><input type='checkbox' id='is_purp'> Purp (Space or P) (I: top block, J: left block, K: bottom block, L: right block)</label></div>
         </div>
     </div>
     <div id='canvas_wrapper'>
