@@ -49,6 +49,22 @@ function game_new_game(level) {
     return to_ret;
 }
 
+function game_has_fixed_block(state) {
+	for (var y = 0; y < state.level.height; ++y)
+		for (var x = 0; x < state.level.width; ++x)
+			if (state.map[y][x] == TILE_FIXED)
+				return true;
+	return false;
+}
+
+function game_finish_tile(state) {
+	for (var y = 0; y < state.level.height; ++y)
+		for (var x = 0; x < state.level.width; ++x)
+			if (state.map[y][x] == TILE_FINISH)
+				return [y, x];
+	return null;
+}
+
 function game_coords_valid(state, y, x) {
     // (State, int, int) -> bool
     return (0 <= y) && (y < state.level.height) && (0 <= x) && (x < state.level.width);
@@ -60,6 +76,11 @@ function game_tile_at(state, y, x) {
         return state.map[y][x];
     else
         return TILE_FIXED;
+}
+
+function game_is_tile_free(state, y, x) {
+	var tile_type = game_tile_at(state, y, x); 
+	return tile_type == TILE_EMPTY || tile_type == TILE_FINISH;
 }
 
 function game_is_movable_block(state, y, x, dy, dx) {

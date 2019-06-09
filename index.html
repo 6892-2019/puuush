@@ -7,9 +7,13 @@
     <script type="text/javascript" src="./js/jsgif/NeuQuant.js"></script>
     <script type="text/javascript" src="./js/jsgif/GIFEncoder.js"></script>
     <script type="text/javascript" src="./js/jsgif/b64.js"></script>
+	<script src="./libs/underscore.js"></script>
+	<script>JSCLASS_PATH = "./libs/jsclass"</script>
+	<script src="./libs/jsclass/loader-browser.js"><!--because regular JavaScript sets are SO LIMITED--></script>
     <script src='./js/util.js'></script>
     <script src='./js/game.js'></script>
     <script src='./js/ui.js'></script>
+	<script src='./js/algo.js'></script>
     <script>
     'use strict';
     var cur_state;
@@ -19,26 +23,10 @@
         return document.getElementById(id);
     }
 
-    function redraw_text() {
-        $('game_text').innerText = ui_state_to_text(cur_state)
-    }
-
-    function redraw_canvas() {
-        ui_redraw_canvas($('game_canvas'), cur_state);
-    }
-
-    function scroll_canvas() {
-        ui_scroll_player_into_view($('canvas_wrapper'), cur_state);
-    }
-
-    function redraw() {
-        redraw_text();
-        redraw_canvas();
-        scroll_canvas();
-        if (gif !== undefined)
-            gif.addFrame($('game_canvas').getContext('2d'));
-    }
-
+	function redraw() {
+		ui_redraw(cur_state, gif);
+	}
+	
     function start_game(scroll_to_canvas) {
         $('start_button').blur();
         var form = $('level');
@@ -82,6 +70,9 @@
 
         if (scroll_to_canvas)
             $('canvas_wrapper').scrollIntoView({block: 'nearest', behavior: 'smooth'});
+		
+		$('solve_button').disabled = level.rules.push_strength !== 0 || level.rules.pull_strength !== 0 || level.rules.purp_strength !== 1 ||
+			level.rules.purp_slide !== 0 || level.rules.simple_path || level.rules.gravity || game_has_fixed_block(cur_state) || game_finish_tile(cur_state) == null;
     }
 
     function parseStrength(s) {
@@ -202,7 +193,7 @@
     </script>
     <link href='./css/main.css' rel='stylesheet'>
 </head>
-<body onload='init()' onresize='scroll_canvas()'>
+<body onload='init()' onresize='ui_scroll_canvas(cur_state)'>
     <form id='level'>
         <div class='row'>
             <div class='panel'>
@@ -253,6 +244,7 @@
                 <label><input type='checkbox' name='gravity'> Gravity</label>
                 <div class='spacer'></div>
                 <button type='button' id='start_button' onclick='start_game(true)'>start</button>
+                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state, gif)'>solve reachability (Purp?-1 individual control only)</button>
             </div>
         </div>
     </form>
