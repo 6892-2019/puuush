@@ -125,7 +125,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
     
     // After freeing a domino, the player should be at the top left of the domino
     expand(state) {
-      var back_domino, dir, dirs, dirset, domino, forth_domino, free_indexes, free_propogation, helper_tile, i, index, inner_domino, insts, iter_dir, j, k, l, len, len1, m, n, neg_dir, neg_iter_dir, new_dir, new_insts, num_back, num_forth, num_tiles, outer_domino, ref, ref1, ref2, start, step, tile, tile_back_in, tile_back_out, tile_forth_in, tile_forth_out, tiles;
+      var back_domino, blocked, dir, dirs, dirset, domino, forth_domino, free_indexes, free_propogation, helper_tile, i, index, inner_domino, insts, iter_dir, j, k, l, len, len1, m, n, neg_dir, neg_iter_dir, new_dir, new_insts, num_back, num_forth, num_tiles, outer_domino, ref, ref1, ref2, start, step, tile, tile_back_in, tile_back_out, tile_forth_in, tile_forth_out, tiles;
       dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]];
       dirset = new Set(dirs); // to keep track of which directions are already on the to-process list
       while (dirs.length !== 0) {
@@ -234,11 +234,12 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
               return results;
             })();
             inner_domino = order_domino([tile_back_in[0], tile_back_in[1], tile_forth_in[0], tile_forth_in[1]]);
+            blocked = game_tile_at(state, tile_back_out[0], tile_back_out[1]) === TILE_BLOCK;
             
             // outer domino
             outer_domino = order_domino([tile_back_out[0], tile_back_out[1], tile_forth_out[0], tile_forth_out[1]]);
             insts = [].concat(...free_propogation);
-            insts.push(new CallInst(inner_domino), MoveInst.purpless(iter_dir), MoveInst.purpless(dir), new MoveInst(neg_dir, neg_iter_dir), MoveInst.purpless(dir), MoveInst.purpless(neg_iter_dir));
+            insts.push(new CallInst(inner_domino), MoveInst.purpless(iter_dir), MoveInst.purpless(dir), new MoveInst(neg_dir, blocked ? neg_iter_dir : null), MoveInst.purpless(dir), MoveInst.purpless(neg_iter_dir));
             this.omino_routes.put(outer_domino, new Code(insts));
             if (step !== num_back - 1 || i === 0) {
               // back domino
@@ -247,7 +248,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
               new_insts = [
                 new CallInst(inner_domino),
                 new MoveInst(iter_dir,
-                dir),
+                blocked ? dir : null),
                 MoveInst.purpless(neg_iter_dir) // propogating free tile an extra space
               ];
               free_propogation.push(...new_insts);
@@ -304,11 +305,12 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
               return results;
             })();
             inner_domino = order_domino([tile_back_in[0], tile_back_in[1], tile_forth_in[0], tile_forth_in[1]]);
+            blocked = game_tile_at(state, tile_forth_out[0], tile_forth_out[1]) === TILE_BLOCK;
             
             // outer domino
             outer_domino = order_domino([tile_back_out[0], tile_back_out[1], tile_forth_out[0], tile_forth_out[1]]);
             insts = [].concat(...free_propogation);
-            insts.push(new CallInst(inner_domino), MoveInst.purpless(dir), new MoveInst(neg_dir, iter_dir), MoveInst.purpless(dir));
+            insts.push(new CallInst(inner_domino), MoveInst.purpless(dir), new MoveInst(neg_dir, blocked ? iter_dir : null), MoveInst.purpless(dir));
             this.omino_routes.put(outer_domino, new Code(insts));
             
             // forth domino
@@ -318,7 +320,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
               new CallInst(inner_domino),
               MoveInst.purpless(iter_dir),
               new MoveInst(neg_iter_dir,
-              dir) // propogating free tile an extra space
+              blocked ? dir : null) // propogating free tile an extra space
             ];
             free_propogation.push(...new_insts);
             free_propogation.push(CallInst.reversed(inner_domino));

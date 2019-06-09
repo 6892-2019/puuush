@@ -120,10 +120,12 @@ JS.require 'JS.Set', 'JS.Hash', (Set, Hash) ->
 						
 						inner_domino = order_domino([tile_back_in[0], tile_back_in[1], tile_forth_in[0], tile_forth_in[1]])
 						
+						blocked = game_tile_at(state, tile_back_out[0], tile_back_out[1]) == TILE_BLOCK
+						
 						# outer domino
 						outer_domino = order_domino([tile_back_out[0], tile_back_out[1], tile_forth_out[0], tile_forth_out[1]])
 						insts = [].concat(...free_propogation)
-						insts.push(new CallInst(inner_domino), MoveInst.purpless(iter_dir), MoveInst.purpless(dir), new MoveInst(neg_dir, neg_iter_dir),
+						insts.push(new CallInst(inner_domino), MoveInst.purpless(iter_dir), MoveInst.purpless(dir), new MoveInst(neg_dir, if blocked then neg_iter_dir else null),
 							MoveInst.purpless(dir), MoveInst.purpless(neg_iter_dir))
 						@omino_routes.put(outer_domino, new Code(insts))
 						
@@ -131,7 +133,7 @@ JS.require 'JS.Set', 'JS.Hash', (Set, Hash) ->
 							# back domino
 							back_domino = order_domino([tile_back_in[0], tile_back_in[1], tile_back_out[0], tile_back_out[1]])
 							insts = [].concat(...free_propogation) # propogating the free tile
-							new_insts = [new CallInst(inner_domino), new MoveInst(iter_dir, dir), MoveInst.purpless(neg_iter_dir)] # propogating free tile an extra space
+							new_insts = [new CallInst(inner_domino), new MoveInst(iter_dir, if blocked then dir else null), MoveInst.purpless(neg_iter_dir)] # propogating free tile an extra space
 							free_propogation.push(...new_insts)
 							free_propogation.push(CallInst.reversed(inner_domino))
 							insts.push(...new_insts)
@@ -158,16 +160,18 @@ JS.require 'JS.Set', 'JS.Hash', (Set, Hash) ->
 						
 						inner_domino = order_domino([tile_back_in[0], tile_back_in[1], tile_forth_in[0], tile_forth_in[1]])
 						
+						blocked = game_tile_at(state, tile_forth_out[0], tile_forth_out[1]) == TILE_BLOCK
+						
 						# outer domino
 						outer_domino = order_domino([tile_back_out[0], tile_back_out[1], tile_forth_out[0], tile_forth_out[1]])
 						insts = [].concat(...free_propogation)
-						insts.push(new CallInst(inner_domino), MoveInst.purpless(dir), new MoveInst(neg_dir, iter_dir), MoveInst.purpless(dir))
+						insts.push(new CallInst(inner_domino), MoveInst.purpless(dir), new MoveInst(neg_dir, if blocked then iter_dir else null), MoveInst.purpless(dir))
 						@omino_routes.put(outer_domino, new Code(insts))
 						
 						# forth domino
 						forth_domino = order_domino([tile_forth_in[0], tile_forth_in[1], tile_forth_out[0], tile_forth_out[1]])
 						insts = [].concat(...free_propogation) # propogating the free tile
-						new_insts = [new CallInst(inner_domino), MoveInst.purpless(iter_dir), new MoveInst(neg_iter_dir, dir)] # propogating free tile an extra space
+						new_insts = [new CallInst(inner_domino), MoveInst.purpless(iter_dir), new MoveInst(neg_iter_dir, if blocked then dir else null)] # propogating free tile an extra space
 						free_propogation.push(...new_insts)
 						free_propogation.push(CallInst.reversed(inner_domino))
 						insts.push(...new_insts)
