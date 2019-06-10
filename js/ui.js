@@ -155,3 +155,23 @@ function ui_scroll_player_into_view(div, state) {
     div.scrollTop = CANVAS_TILE_SIZE * (state.y + 0.5) - div.clientHeight / 2;
     div.scrollLeft = CANVAS_TILE_SIZE * (state.x + 0.5) - div.clientWidth / 2;
 }
+
+function ui_redraw_text(state) {
+	$('game_text').innerText = ui_state_to_text(state)
+}
+
+function ui_redraw_game_canvas(state) {
+	ui_redraw_canvas($('game_canvas'), state);
+}
+
+function ui_scroll_canvas(state) {
+	ui_scroll_player_into_view($('canvas_wrapper'), state);
+}
+
+function ui_redraw(state, gif) {
+	ui_redraw_text(state);
+	ui_redraw_game_canvas(state);
+	ui_scroll_canvas(state);
+	if (gif !== undefined)
+		gif.addFrame($('game_canvas').getContext('2d'));
+}
