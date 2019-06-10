@@ -542,6 +542,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
     box.expand(state);
     //console.log(box)
     if (box.omino_routes.hasKey(finish_tile)) {
+      $('impossible').innerHTML = "Possible!";
       box.omino_routes.get(finish_tile).unfolded(state, box.omino_routes).execute(state, gif);
       return true;
     }
