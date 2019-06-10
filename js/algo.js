@@ -531,6 +531,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
   };
   return solve_purp_1 = function(state, gif) {
     var box, finish_tile, imm_reach;
+    $('impossible').innerHTML = '';
     imm_reach = imm_reachable_tiles(state);
     finish_tile = game_finish_tile(state);
     if (imm_reach.hasKey(finish_tile)) {
@@ -544,6 +545,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
       box.omino_routes.get(finish_tile).unfolded(state, box.omino_routes).execute(state, gif);
       return true;
     }
+    $('impossible').innerHTML = "Impossible!";
     return false;
   };
 });

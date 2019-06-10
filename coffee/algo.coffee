@@ -313,6 +313,7 @@ JS.require 'JS.Set', 'JS.Hash', (Set, Hash) ->
 		code.execute(state)
 	
 	solve_purp_1 = (state, gif) ->
+		$('impossible').innerHTML = ''
 		imm_reach = imm_reachable_tiles(state)
 		finish_tile = game_finish_tile(state)
 		
@@ -327,6 +328,7 @@ JS.require 'JS.Set', 'JS.Hash', (Set, Hash) ->
 		if box.omino_routes.hasKey(finish_tile)
 			box.omino_routes.get(finish_tile).unfolded(state, box.omino_routes).execute(state, gif)
 			return true
-			
+		
+		$('impossible').innerHTML = "Impossible!"
 		return false
 		

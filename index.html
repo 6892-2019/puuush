@@ -28,6 +28,7 @@
 	}
 	
     function start_game(scroll_to_canvas) {
+		$('impossible').innerHTML = ''
         $('start_button').blur();
         var form = $('level');
 
@@ -245,6 +246,7 @@
                 <div class='spacer'></div>
                 <button type='button' id='start_button' onclick='start_game(true)'>start</button>
                 <button type='button' id='solve_button' onclick='solve_purp_1(cur_state, gif)'>solve reachability (Purp?-1 individual control only)</button>
+				<label id='impossible'></label>
             </div>
         </div>
     </form>
