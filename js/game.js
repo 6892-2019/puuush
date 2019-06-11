@@ -49,14 +49,6 @@ function game_new_game(level) {
     return to_ret;
 }
 
-function game_has_fixed_block(state) {
-	for (var y = 0; y < state.level.height; ++y)
-		for (var x = 0; x < state.level.width; ++x)
-			if (state.map[y][x] == TILE_FIXED)
-				return true;
-	return false;
-}
-
 function game_finish_tile(state) {
 	for (var y = 0; y < state.level.height; ++y)
 		for (var x = 0; x < state.level.width; ++x)

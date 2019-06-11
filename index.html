@@ -71,9 +71,38 @@
 
         if (scroll_to_canvas)
             $('canvas_wrapper').scrollIntoView({block: 'nearest', behavior: 'smooth'});
-		
-		$('solve_button').disabled = level.rules.push_strength !== 0 || level.rules.pull_strength !== 0 || level.rules.purp_strength !== 1 ||
-			level.rules.purp_slide !== 0 || level.rules.simple_path || level.rules.gravity || game_has_fixed_block(cur_state) || game_finish_tile(cur_state) == null;
+
+        update_solver_button(cur_state);
+    }
+
+    function update_solver_button(state) {
+        var rules = state.level.rules;
+        $('solve_button').disabled = true;
+        $('solve_error').innerText = '';
+
+        if (rules.push_strength !== 0 || rules.pull_strength !== 0 || rules.purp_strength !== 1)
+            $('solve_error').innerText = ' (strengths must be 0, 0, 1)';
+        else if (rules.purp_slide !== SLIDE_NONE)
+            $('solve_error').innerText = ' (purp sliding should be disabled)';
+        else if (rules.simple_path)
+            $('solve_error').innerText = ' (disappearing blocks should be disabled)';
+        else if (rules.gravity)
+            $('solve_error').innerText = ' (gravity should be disabled)';
+        else if (game_finish_tile(cur_state) == null)
+            $('solve_error').innerText = ' (no finish tile)';
+        else {
+            for (var y = 0; y < state.level.height; ++y) {
+                for (var x = 0; x < state.level.width; ++x) {
+                    var tile = state.map[y][x]
+                    if (tile !== TILE_EMPTY && tile !== TILE_BLOCK && tile !== TILE_FINISH) {
+                        $('solve_error').innerText = ` (invalid tile at row ${y+1}, column ${x+1})`;
+                        return;
+                    }
+                }
+            }
+            $('solve_error').innerText = '';
+            $('solve_button').disabled = false;
+        }
     }
 
     function parseStrength(s) {
@@ -245,7 +274,7 @@
                 <label><input type='checkbox' name='gravity'> Gravity</label>
                 <div class='spacer'></div>
                 <button type='button' id='start_button' onclick='start_game(true)'>start</button>
-                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state, gif)'>solve reachability (Purp?-1 individual control only)</button>
+                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state, gif)'>solve reachability<span id='solve_error'></span></button>
 				<label id='impossible'></label>
             </div>
         </div>
