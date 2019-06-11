@@ -7,28 +7,28 @@
     <script type="text/javascript" src="./libs/jsgif/NeuQuant.js"></script>
     <script type="text/javascript" src="./libs/jsgif/GIFEncoder.js"></script>
     <script type="text/javascript" src="./libs/jsgif/b64.js"></script>
-	<script src="./libs/underscore.js"></script>
-	<script>JSCLASS_PATH = "./libs/jsclass"</script>
-	<script src="./libs/jsclass/loader-browser.js"><!--because regular JavaScript sets are SO LIMITED--></script>
+    <script src="./libs/underscore.js"></script>
+    <script>JSCLASS_PATH = "./libs/jsclass"</script>
+    <script src="./libs/jsclass/loader-browser.js"><!--because regular JavaScript sets are SO LIMITED--></script>
     <script src='./js/util.js'></script>
     <script src='./js/game.js'></script>
     <script src='./js/ui.js'></script>
-	<script src='./libs/algo.js'></script>
+    <script src='./libs/algo.js'></script>
     <script>
     'use strict';
     var cur_state;
-	var pressed_keys;
+    var pressed_keys;
 
     function $(id) {
         return document.getElementById(id);
     }
 
-	function redraw() {
-		ui_redraw(cur_state, gif);
-	}
-	
+    function redraw() {
+        ui_redraw(cur_state, gif);
+    }
+
     function start_game(scroll_to_canvas) {
-		$('impossible').innerHTML = ''
+        $('impossible').innerHTML = ''
         $('start_button').blur();
         var form = $('level');
 
@@ -156,26 +156,26 @@
     }
 
     function move(dy, dx) {
-		var purp_interface = null;
-		var cancel_purp = false;
-		if (dy === 0)
-		{
-			if (pressed_keys['KeyI'])
-				purp_interface = [-1, 0];
-			if (pressed_keys['KeyK'])
-				purp_interface = [1, 0];
-			if (pressed_keys['KeyJ'] || pressed_keys['KeyL'])
-				cancel_purp = true;
-		}
-		if (dx === 0)
-		{
-			if (pressed_keys['KeyJ'])
-				purp_interface = [0, -1];
-			if (pressed_keys['KeyL'])
-				purp_interface = [0, 1];
-			if (pressed_keys['KeyI'] || pressed_keys['KeyK'])
-				cancel_purp = true;
-		}
+        var purp_interface = null;
+        var cancel_purp = false;
+        if (dy === 0)
+        {
+            if (pressed_keys['KeyI'])
+                purp_interface = [-1, 0];
+            if (pressed_keys['KeyK'])
+                purp_interface = [1, 0];
+            if (pressed_keys['KeyJ'] || pressed_keys['KeyL'])
+                cancel_purp = true;
+        }
+        if (dx === 0)
+        {
+            if (pressed_keys['KeyJ'])
+                purp_interface = [0, -1];
+            if (pressed_keys['KeyL'])
+                purp_interface = [0, 1];
+            if (pressed_keys['KeyI'] || pressed_keys['KeyK'])
+                cancel_purp = true;
+        }
         game_move(cur_state, $('is_pull').checked, $('is_purp').checked && !cancel_purp, purp_interface, dy, dx);
         redraw();
     }
@@ -275,7 +275,7 @@
                 <div class='spacer'></div>
                 <button type='button' id='start_button' onclick='start_game(true)'>start</button>
                 <button type='button' id='solve_button' onclick='solve_purp_1(cur_state, gif)'>solve reachability<span id='solve_error'></span></button>
-				<label id='impossible'></label>
+                <label id='impossible'></label>
             </div>
         </div>
     </form>

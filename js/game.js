@@ -50,11 +50,11 @@ function game_new_game(level) {
 }
 
 function game_finish_tile(state) {
-	for (var y = 0; y < state.level.height; ++y)
-		for (var x = 0; x < state.level.width; ++x)
-			if (state.map[y][x] == TILE_FINISH)
-				return [y, x];
-	return null;
+    for (var y = 0; y < state.level.height; ++y)
+        for (var x = 0; x < state.level.width; ++x)
+            if (state.map[y][x] == TILE_FINISH)
+                return [y, x];
+    return null;
 }
 
 function game_coords_valid(state, y, x) {
@@ -71,8 +71,8 @@ function game_tile_at(state, y, x) {
 }
 
 function game_is_tile_free(state, y, x) {
-	var tile_type = game_tile_at(state, y, x); 
-	return tile_type == TILE_EMPTY || tile_type == TILE_FINISH;
+    var tile_type = game_tile_at(state, y, x);
+    return tile_type == TILE_EMPTY || tile_type == TILE_FINISH;
 }
 
 function game_is_movable_block(state, y, x, dy, dx) {
@@ -81,7 +81,7 @@ function game_is_movable_block(state, y, x, dy, dx) {
     switch (game_tile_at(state, y, x)) {
         case TILE_BLOCK: return true;
         case TILE_BLOCK_H: return dy === 0;
-        case TILE_BLOCK_V: return dx === 0
+        case TILE_BLOCK_V: return dx === 0;
     }
 }
 
@@ -190,14 +190,14 @@ function game_purp(state, dy, dx, interface_) {
 
     // for each purp interface
     for (var [purp_dy, purp_dx] of [[dx, -dy], [-dx, dy]]) {
-		
-		if (interface_ === null || (interface_[0] == purp_dy && interface_[1] == purp_dx))
-			// we need to move every single block that can move, as they move to the side
-			for (var i = 1; i <= state.level.rules.purp_strength; ++i) {
-				if (!game_try_move_block(state, state.y + purp_dy * i, state.x + purp_dx * i, dy, dx, state.level.rules.purp_slide)) {
-					break;
-				}
-			}
+        if (interface_ === null || (interface_[0] == purp_dy && interface_[1] == purp_dx)) {
+            // we need to move every single block that can move, as they move to the side
+            for (var i = 1; i <= state.level.rules.purp_strength; ++i) {
+                if (!game_try_move_block(state, state.y + purp_dy * i, state.x + purp_dx * i, dy, dx, state.level.rules.purp_slide)) {
+                    break;
+                }
+            }
+        }
     }
 
     return true;
@@ -235,7 +235,7 @@ function game_move(state, is_pull, is_purp, purp_interface, dy, dx) {
         game_pull(state, dy, dx)
     if (is_purp)
         game_purp(state, dy, dx, purp_interface)
-    
+
     if (state.level.rules.simple_path) {
         state.map[state.y][state.x] = TILE_FIXED;
     }
