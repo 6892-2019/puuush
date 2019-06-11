@@ -46,9 +46,9 @@
             start_y: map_details.start_y,
             start_x: map_details.start_x,
             rules: {
-                push_strength: parseStrength(form.elements.push_strength.value),
-                pull_strength: parseStrength(form.elements.pull_strength.value),
-                purp_strength: parseStrength(form.elements.purp_strength.value),
+                push_strength: parse_strength(form.elements.push_strength.value),
+                pull_strength: parse_strength(form.elements.pull_strength.value),
+                purp_strength: parse_strength(form.elements.purp_strength.value),
                 push_slide: parseInt(form.elements.push_slide.value),
                 pull_slide: parseInt(form.elements.pull_slide.value),
                 purp_slide: parseInt(form.elements.purp_slide.value),
@@ -105,7 +105,7 @@
         }
     }
 
-    function parseStrength(s) {
+    function parse_strength(s) {
         var x = parseInt(s);
         return x >= 0 ? x : Infinity;
     }
