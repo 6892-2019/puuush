@@ -63,7 +63,7 @@ function game_new_game(level) {
         map: util_copy_2d_array(level.starting_map),
         y: level.start_y,
         x: level.start_x,
-    }
+    };
     game_do_gravity(to_ret);
     return to_ret;
 }
@@ -169,7 +169,7 @@ function game_push(state, dy, dx) {
     }
 
     for (var i = blocks; i > 0; --i) {
-        game_try_move_block(state, state.y + dy * i, state.x + dx * i, dy, dx, state.level.rules.push_slide)
+        game_try_move_block(state, state.y + dy * i, state.x + dx * i, dy, dx, state.level.rules.push_slide);
     }
 }
 
@@ -177,7 +177,7 @@ function game_pull(state, dy, dx) {
     // (State, int, int) -> undefined
     // mutates state
     if (game_get_tile(state, state.y + dy, state.x + dx) !== TILE_EMPTY)
-        return
+        return;
     if (state.level.rules.simple_path) {
         return;
     }
@@ -194,7 +194,7 @@ function game_purp(state, dy, dx, interface_) {
     // (State, int, int) -> undefined
     // mutates state
     if (game_get_tile(state, state.y + dy, state.x + dx) !== TILE_EMPTY)
-        return
+        return;
 
     // for each purp interface
     for (var [purp_dy, purp_dx] of [[dx, -dy], [-dx, dy]]) {
@@ -227,22 +227,22 @@ function game_move(state, is_pull, is_purp, purp_interface, dy, dx) {
     var new_y = state.y + dy;
     var new_x = state.x + dx;
 
-    game_push(state, dy, dx)
+    game_push(state, dy, dx);
 
     if (game_get_tile(state, new_y, new_x) == TILE_FINISH) {
         state.y = new_y;
         state.x = new_x;
         state.won = true;
-        return true
+        return true;
     }
     if (game_get_tile(state, new_y, new_x) !== TILE_EMPTY) {
         return false;
     }
 
     if (is_pull)
-        game_pull(state, dy, dx)
+        game_pull(state, dy, dx);
     if (is_purp)
-        game_purp(state, dy, dx, purp_interface)
+        game_purp(state, dy, dx, purp_interface);
 
     if (state.level.rules.simple_path) {
         game_set_tile(state, state.y, state.x, TILE_FIXED);
@@ -251,6 +251,6 @@ function game_move(state, is_pull, is_purp, purp_interface, dy, dx) {
     state.y = new_y;
     state.x = new_x;
 
-    game_do_gravity(state)
+    game_do_gravity(state);
     return true;
 }

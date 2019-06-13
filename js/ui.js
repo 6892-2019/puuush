@@ -157,7 +157,7 @@ function ui_scroll_player_into_view(div, state) {
 }
 
 function ui_redraw_text(state) {
-    $('game_text').innerText = ui_state_to_text(state)
+    $('game_text').innerText = ui_state_to_text(state);
 }
 
 function ui_redraw_game_canvas(state) {
