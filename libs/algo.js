@@ -188,7 +188,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
             insts.push(MoveInst.purpless(dir));
           }
           this.omino_routes.put(tile, new Code(insts));
-          if (game_tile_at(state, tile[0], tile[1]) === TILE_FINISH) {
+          if (game_get_tile(state, tile[0], tile[1]) === TILE_FINISH) {
             return;
           }
           
@@ -234,7 +234,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
               return results;
             })();
             inner_domino = order_domino([tile_back_in[0], tile_back_in[1], tile_forth_in[0], tile_forth_in[1]]);
-            blocked = game_tile_at(state, tile_back_out[0], tile_back_out[1]) === TILE_BLOCK;
+            blocked = game_get_tile(state, tile_back_out[0], tile_back_out[1]) === TILE_BLOCK;
             
             // outer domino
             outer_domino = order_domino([tile_back_out[0], tile_back_out[1], tile_forth_out[0], tile_forth_out[1]]);
@@ -263,7 +263,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
                 insts.push(MoveInst.purpless(dir));
               }
               this.omino_routes.put(tile_back_out, new Code(insts));
-              if (game_tile_at(state, tile_back_out[0], tile_back_out[1]) === TILE_FINISH) {
+              if (game_get_tile(state, tile_back_out[0], tile_back_out[1]) === TILE_FINISH) {
                 return;
               }
             }
@@ -305,7 +305,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
               return results;
             })();
             inner_domino = order_domino([tile_back_in[0], tile_back_in[1], tile_forth_in[0], tile_forth_in[1]]);
-            blocked = game_tile_at(state, tile_forth_out[0], tile_forth_out[1]) === TILE_BLOCK;
+            blocked = game_get_tile(state, tile_forth_out[0], tile_forth_out[1]) === TILE_BLOCK;
             
             // outer domino
             outer_domino = order_domino([tile_back_out[0], tile_back_out[1], tile_forth_out[0], tile_forth_out[1]]);
@@ -335,7 +335,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
               insts.push(MoveInst.purpless(dir));
             }
             this.omino_routes.put(tile_forth_out, new Code(insts));
-            if (game_tile_at(state, tile_forth_out[0], tile_forth_out[1]) === TILE_FINISH) {
+            if (game_get_tile(state, tile_forth_out[0], tile_forth_out[1]) === TILE_FINISH) {
               return;
             }
           }
@@ -505,7 +505,7 @@ JS.require('JS.Set', 'JS.Hash', function(Set, Hash) {
           to_expand.push(new_tile);
           
           // Early out
-          if (game_tile_at(state, new_tile[0], new_tile[1]) === TILE_FINISH) {
+          if (game_get_tile(state, new_tile[0], new_tile[1]) === TILE_FINISH) {
             return map;
           }
         }

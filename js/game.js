@@ -36,6 +36,25 @@ type State = {
 }
 */
 
+function game_coords_valid(state, y, x) {
+    // (State, int, int) -> bool
+    return (0 <= y) && (y < state.level.height) && (0 <= x) && (x < state.level.width);
+}
+
+function game_get_tile(state, y, x) {
+    // (State, int, int) -> TILE_*
+    if (game_coords_valid(state, y, x))
+        return state.map[y][x];
+    else
+        return TILE_FIXED;
+}
+
+function game_set_tile(state, y, x, tile) {
+    // (State, int, int, TILE_*) -> void
+    util_assert(game_coords_valid(state, y, x));
+    state.map[y][x] = tile;
+}
+
 function game_new_game(level) {
     // (Level) -> State
     var to_ret = {
@@ -52,33 +71,20 @@ function game_new_game(level) {
 function game_finish_tile(state) {
     for (var y = 0; y < state.level.height; ++y)
         for (var x = 0; x < state.level.width; ++x)
-            if (state.map[y][x] == TILE_FINISH)
+            if (game_get_tile(state, y, x) == TILE_FINISH)
                 return [y, x];
     return null;
 }
 
-function game_coords_valid(state, y, x) {
-    // (State, int, int) -> bool
-    return (0 <= y) && (y < state.level.height) && (0 <= x) && (x < state.level.width);
-}
-
-function game_tile_at(state, y, x) {
-    // (State, int, int) -> TILE_*
-    if (game_coords_valid(state, y, x))
-        return state.map[y][x];
-    else
-        return TILE_FIXED;
-}
-
 function game_is_tile_free(state, y, x) {
-    var tile_type = game_tile_at(state, y, x);
+    var tile_type = game_get_tile(state, y, x);
     return tile_type == TILE_EMPTY || tile_type == TILE_FINISH;
 }
 
 function game_is_movable_block(state, y, x, dy, dx) {
     // (State, int, int, int, int) -> bool
     // checks whether the tile can be moved in a given direction
-    switch (game_tile_at(state, y, x)) {
+    switch (game_get_tile(state, y, x)) {
         case TILE_BLOCK: return true;
         case TILE_BLOCK_H: return dy === 0;
         case TILE_BLOCK_V: return dx === 0;
@@ -92,13 +98,13 @@ function game_do_gravity(state) {
     if (!state.level.rules.gravity) return;
 
     for (var x=0; x < state.level.width; ++x) {
-        var bottom = (state.map[state.level.height-1][x] === TILE_EMPTY) ? state.level.height-1 : state.level.height-2;
+        var bottom = (game_get_tile(state, state.level.height-1, x) === TILE_EMPTY) ? state.level.height-1 : state.level.height-2;
         for (var y = state.level.height-2; y >= 0; --y) {
             if (game_is_movable_block(state, y, x, 1, 0) && bottom > y) {
-                state.map[bottom][x] = state.map[y][x];
-                state.map[y][x] = TILE_EMPTY;
+                game_set_tile(state, bottom, x, game_get_tile(state, y, x));
+                game_set_tile(state, y, x, TILE_EMPTY);
                 --bottom;
-            } else if (state.map[y][x] !== TILE_EMPTY || (y === state.y && x === state.x)) {
+            } else if (game_get_tile(state, y, x) !== TILE_EMPTY || (y === state.y && x === state.x)) {
                 bottom = y-1;
             }
         }
@@ -112,37 +118,39 @@ function game_try_move_block(state, y, x, dy, dx, slide_rule) {
         return false;
     }
 
+    var block = game_get_tile(state, y, x);
+
     switch (slide_rule) {
         case SLIDE_NONE:
-            if (game_tile_at(state, y + dy, x + dx) !== TILE_EMPTY)
+            if (game_get_tile(state, y + dy, x + dx) !== TILE_EMPTY)
                 return false;
-            state.map[y + dy][x + dx] = state.map[y][x];
-            state.map[y][x] = TILE_EMPTY;
+            game_set_tile(state, y, x, TILE_EMPTY);
+            game_set_tile(state, y + dy, x + dx, block);
         break;
         case SLIDE_MOVED:
-            for (var i = 1;; ++i) {
-                if (game_tile_at(state, y + dy * i, x + dx * i) !== TILE_EMPTY) {
-                    state.map[y + dy * (i - 1)][x + dx * (i - 1)] = state.map[y][x];
-                    state.map[y][x] = TILE_EMPTY;
-                    return i > 1;
-                }
-            }
+            for (var i = 1; game_get_tile(state, y + dy * i, x + dx * i) === TILE_EMPTY; ++i);
+            --i;
+            game_set_tile(state, y, x, TILE_EMPTY);
+            game_set_tile(state, y + dy * i, x + dx * i, block);
+            return i > 0;
         break;
         case SLIDE_ALL:
-            var blocks = [state.map[y][x]];
-            state.map[y][x] = TILE_EMPTY;
-            for (var i = 1;; ++i) {
+            var blocks = [block];
+            game_set_tile(state, y, x, TILE_EMPTY);
+            for (var i = 1; ; ++i) {
                 if (game_is_movable_block(state, y + dy * i, x + dx * i, dy, dx)) {
-                    blocks.push(state.map[y + dy * i][x + dx * i]);
-                    state.map[y + dy * i][x + dx * i] = TILE_EMPTY;
+                    blocks.push(game_get_tile(state, y + dy * i, x + dx * i));
+                    game_set_tile(state, y + dy * i, x + dx * i, TILE_EMPTY);
                 }
-                if (game_tile_at(state, y + dy * i, x + dx * i) !== TILE_EMPTY) {
-                    for (--i; blocks.length > 0; --i) {
-                        state.map[y + dy * i][x + dx * i] = blocks.pop();
-                    }
-                    return i > 1;
-                }
+                if (game_get_tile(state, y + dy * i, x + dx * i) !== TILE_EMPTY)
+                    break;
             }
+            --i;
+            while (blocks.length > 0) {
+                game_set_tile(state, y + dy * i, x + dx * i, blocks.pop());
+                --i;
+            }
+            return i > 0;
         break;
     }
     return true;
@@ -168,7 +176,7 @@ function game_push(state, dy, dx) {
 function game_pull(state, dy, dx) {
     // (State, int, int) -> undefined
     // mutates state
-    if (game_tile_at(state, state.y + dy, state.x + dx) !== TILE_EMPTY)
+    if (game_get_tile(state, state.y + dy, state.x + dx) !== TILE_EMPTY)
         return
     if (state.level.rules.simple_path) {
         return;
@@ -185,7 +193,7 @@ function game_pull(state, dy, dx) {
 function game_purp(state, dy, dx, interface_) {
     // (State, int, int) -> undefined
     // mutates state
-    if (game_tile_at(state, state.y + dy, state.x + dx) !== TILE_EMPTY)
+    if (game_get_tile(state, state.y + dy, state.x + dx) !== TILE_EMPTY)
         return
 
     // for each purp interface
@@ -221,13 +229,13 @@ function game_move(state, is_pull, is_purp, purp_interface, dy, dx) {
 
     game_push(state, dy, dx)
 
-    if (game_tile_at(state, new_y, new_x) == TILE_FINISH) {
+    if (game_get_tile(state, new_y, new_x) == TILE_FINISH) {
         state.y = new_y;
         state.x = new_x;
         state.won = true;
         return true
     }
-    if (game_tile_at(state, new_y, new_x) !== TILE_EMPTY) {
+    if (game_get_tile(state, new_y, new_x) !== TILE_EMPTY) {
         return false;
     }
 
@@ -237,7 +245,7 @@ function game_move(state, is_pull, is_purp, purp_interface, dy, dx) {
         game_purp(state, dy, dx, purp_interface)
 
     if (state.level.rules.simple_path) {
-        state.map[state.y][state.x] = TILE_FIXED;
+        game_set_tile(state, state.y, state.x, TILE_FIXED);
     }
 
     state.y = new_y;
