@@ -128,25 +128,27 @@
             $('is_pull').checked = e.shiftKey;
             $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'] || pressed_keys['KeyI'] || pressed_keys['KeyJ'] || pressed_keys['KeyK'] || pressed_keys['KeyL'];
 
-            switch (e.code) {
-                case 'KeyW':
-                case 'ArrowUp':
-                    move(-1, 0);
-                break;
-                case 'KeyA':
-                case 'ArrowLeft':
-                    move(0, -1);
-                break;
-                case 'KeyS':
-                case 'ArrowDown':
-                    move(1, 0);
-                break;
-                case 'KeyD':
-                case 'ArrowRight':
-                    move(0, 1);
-                break;
+            if (e.target.tagName.toUpperCase() === 'BODY') {
+                switch (e.code) {
+                    case 'KeyW':
+                    case 'ArrowUp':
+                        move(-1, 0);
+                    break;
+                    case 'KeyA':
+                    case 'ArrowLeft':
+                        move(0, -1);
+                    break;
+                    case 'KeyS':
+                    case 'ArrowDown':
+                        move(1, 0);
+                    break;
+                    case 'KeyD':
+                    case 'ArrowRight':
+                        move(0, 1);
+                    break;
+                }
             }
-        });
+        })
         document.addEventListener('keyup', function (e) {
             pressed_keys[e.code] = false;
             $('is_pull').checked = e.shiftKey;
