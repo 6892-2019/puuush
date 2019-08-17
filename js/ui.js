@@ -61,64 +61,64 @@ function ui_state_to_text(state) {
 
 function ui_parse_map(map_text) {
     // String -> {height: int, width: int, map: [[TILE_*]], start_y: int, start_x: int}
-    var lines = map_text.trim().split('\n');
+    var lines = map_text.replace(/^\n|\n$/g, '').split('\n');
     var res = {
         height: lines.length,
-        width: lines[0].length,
+        width: Math.max(...lines.map(l => l.length))
     }
 
     var map = [];
     for (var i = 0; i < lines.length; ++i) {
-        lines[i] = lines[i].trim();
-
         var map_line = [];
-        if (lines[i].length !== res.width) {
-            throw 'not all lines have the same length';
-        }
 
-        for (var j = 0; j < lines[i].length; ++j) {
-            switch (lines[i][j].toLowerCase()) {
-                case ' ':
-                case '.':
-                    map_line.push(TILE_EMPTY);
-                break;
-                case '#':
-                    map_line.push(TILE_FIXED);
-                break;
-                case 'x':
-                    map_line.push(TILE_BLOCK);
-                break;
-                case '|':
-                    map_line.push(TILE_BLOCK_V);
-                break;
-                case '-':
-                    map_line.push(TILE_BLOCK_H);
-                break;
-                case 's':
-                    if (res.start_y !== undefined) {
-                        throw 'multiple start tiles';
-                    }
-                    map_line.push(TILE_EMPTY);
-                    res.start_y = i;
-                    res.start_x = j;
+        for (var j = 0; j < res.width; ++j) {
+            if (lines[i][j] === undefined) {
+                map_line.push(TILE_EMPTY);
+            }
+            else {
+                switch (lines[i][j].toLowerCase()) {
+                    case ' ':
+                    case '.':
+                        map_line.push(TILE_EMPTY);
                     break;
-                case 'f':
-                    map_line.push(TILE_FINISH);
-                break;
-                case '^':
-                    map_line.push(TILE_DIODE_N);
-                break;
-                case '>':
-                    map_line.push(TILE_DIODE_E);
-                break;
-                case 'v':
-                    map_line.push(TILE_DIODE_S);
-                break;
-                case '<':
-                    map_line.push(TILE_DIODE_W);
-                break;
-                default:
-                    throw 'unknown map tile "' + lines[i][j] + '"';
+                    case '#':
+                        map_line.push(TILE_FIXED);
+                    break;
+                    case 'x':
+                        map_line.push(TILE_BLOCK);
+                    break;
+                    case '|':
+                        map_line.push(TILE_BLOCK_V);
+                    break;
+                    case '-':
+                        map_line.push(TILE_BLOCK_H);
+                    break;
+                    case 's':
+                        if (res.start_y !== undefined) {
+                            throw 'multiple start tiles';
+                        }
+                        map_line.push(TILE_EMPTY);
+                        res.start_y = i;
+                        res.start_x = j;
+                        break;
+                    case 'f':
+                        map_line.push(TILE_FINISH);
+                    break;
+                    case '^':
+                        map_line.push(TILE_DIODE_N);
+                    break;
+                    case '>':
+                        map_line.push(TILE_DIODE_E);
+                    break;
+                    case 'v':
+                        map_line.push(TILE_DIODE_S);
+                    break;
+                    case '<':
+                        map_line.push(TILE_DIODE_W);
+                    break;
+                    default:
+                        throw 'unknown map tile "' + lines[i][j] + '"';
+                }
             }
         }
 
@@ -172,8 +172,11 @@ function ui_redraw_canvas(canvas, state) {
 
     for (var i = 0; i < state.level.height; ++i) {
         for (var j = 0; j < state.level.width; ++j) {
-            ctx.drawImage(CANVAS_TILES[state.map[i][j]],
-                j * CANVAS_TILE_SIZE, i * CANVAS_TILE_SIZE);
+            var tile = CANVAS_TILES[state.map[i][j]];
+            if (tile !== undefined)
+                ctx.drawImage(tile, j * CANVAS_TILE_SIZE, i * CANVAS_TILE_SIZE);
+            else
+                throw 'Missing tile: ' + state.map[i][j]
         }
     }
     ctx.drawImage(CANVAS_TILES['player'],
