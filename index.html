@@ -24,7 +24,7 @@
     }
 
     function redraw() {
-        ui_redraw(cur_state, gif);
+        ui_redraw(cur_state, gif_encoder);
     }
 
     function start_game(scroll_to_canvas) {
@@ -180,28 +180,33 @@
         redraw();
     }
 
-    var gif = undefined;
+    var gif_encoder = undefined;
     function record_gif() {
-        if (gif === undefined) {
+        if (gif_encoder === undefined) {
             // start gif
-            gif = new GIFEncoder();
-            gif.setRepeat(0);
-            gif.setDelay(200);
-            gif.start();
-            gif.addFrame($('game_canvas').getContext('2d'));
+            gif_encoder = new GIFEncoder();
+            if ($('gif_repeat').checked)
+                // setRepeat documentation is wrong/misleading
+                // Calling setRepeat(1) plays the gif *twice*
+                // The only way to play the gif once is to *not* call this method
+                gif_encoder.setRepeat(0);
+            gif_encoder.start();
+            ui_add_gif_frame(gif_encoder);
             $('gif_button').innerText = 'Stop Recording';
             $('gif_button').blur();
+            $('gif_repeat').disabled = true;
         }
         else {
             // stop gif
-            gif.addFrame($('game_canvas').getContext('2d'));
-            gif.finish();
-            var binary_gif = gif.stream().getData();
+            ui_add_gif_frame(gif_encoder);
+            gif_encoder.finish();
+            var binary_gif = gif_encoder.stream().getData();
             var data_url = 'data:image/gif;base64,'+encode64(binary_gif);
             $('gif_output').src = data_url;
             $('gif_button').innerText = 'Record GIF';
             $('gif_button').blur();
-            gif = undefined;
+            $('gif_repeat').disabled = false;
+            gif_encoder = undefined;
         }
     }
 
@@ -274,7 +279,7 @@
                 <label><input type='checkbox' name='gravity'> Gravity</label>
                 <div class='spacer'></div>
                 <button type='button' id='start_button' onclick='start_game(true)'>start</button>
-                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state, gif)'>solve reachability<span id='solve_error'></span></button>
+                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state, gif_encoder)'>solve reachability<span id='solve_error'></span></button>
                 <label id='impossible'></label>
             </div>
         </div>
@@ -299,7 +304,11 @@
         <canvas id='game_canvas'></canvas>
     </div>
     <pre id='game_text'></pre>
-    <button type='button' id='gif_button' onclick='record_gif()'>Record GIF</button>
+    <div>
+        <button type='button' id='gif_button' onclick='record_gif()'>Record GIF</button>
+        <label><input type='number' min='0' value='200' length='4' id='gif_delay' title="Applies to the current and all future frames"> ms/frame</label>
+        <label><input type='checkbox' id='gif_repeat' checked> repeat</label>
+    </div>
     <div id='gif_wrapper'><img id='gif_output' /></div>
     <div class='credits'>Robot icon by <a href='https://fontawesome.com/icons/robot?style=solid' rel='noreferrer'>Font Awesome</a> (CC-BY), thanks! GIF recorder powered by <a href='https://github.com/antimatter15/jsgif'>jsgif</a>.</div>
 </body>

@@ -120,6 +120,10 @@ tt {
     overflow: auto;
 }
 
+#gif_delay {
+    width: 4.5em;
+}
+
 .credits {
     margin-top: 5px;
     font-size: smaller;

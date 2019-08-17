@@ -168,10 +168,16 @@ function ui_scroll_canvas(state) {
     ui_scroll_player_into_view($('canvas_wrapper'), state);
 }
 
-function ui_redraw(state, gif) {
+function ui_add_gif_frame(gif_encoder) {
+    if (gif_encoder !== undefined) {
+        gif_encoder.setDelay(parseInt($('gif_delay').value));
+        gif_encoder.addFrame($('game_canvas').getContext('2d'));
+    }
+}
+
+function ui_redraw(state, gif_encoder) {
+    ui_add_gif_frame(gif_encoder); // add *old* frame to gif
     ui_redraw_text(state);
     ui_redraw_game_canvas(state);
     ui_scroll_canvas(state);
-    if (gif !== undefined)
-        gif.addFrame($('game_canvas').getContext('2d'));
 }
