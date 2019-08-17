@@ -78,6 +78,7 @@ function ui_parse_map(map_text) {
 
         for (var j = 0; j < lines[i].length; ++j) {
             switch (lines[i][j].toLowerCase()) {
+                case ' ':
                 case '.':
                     map_line.push(TILE_EMPTY);
                 break;
