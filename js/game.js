@@ -6,6 +6,10 @@ var TILE_BLOCK = 2;
 var TILE_BLOCK_V = 3;
 var TILE_BLOCK_H = 4;
 var TILE_FINISH = 5;
+var TILE_DIODE_N = 6;
+var TILE_DIODE_E = 7;
+var TILE_DIODE_S = 8;
+var TILE_DIODE_W = 9;
 
 var SLIDE_NONE = 0;
 var SLIDE_MOVED = 1;
@@ -78,7 +82,12 @@ function game_finish_tile(state) {
 
 function game_is_tile_free(state, y, x) {
     var tile_type = game_get_tile(state, y, x);
-    return tile_type == TILE_EMPTY || tile_type == TILE_FINISH;
+    return tile_type == TILE_EMPTY
+        || tile_type == TILE_FINISH
+        || tile_type == TILE_DIODE_N
+        || tile_type == TILE_DIODE_E
+        || tile_type == TILE_DIODE_S
+        || tile_type == TILE_DIODE_W;
 }
 
 function game_is_movable_block(state, y, x, dy, dx) {
@@ -235,7 +244,7 @@ function game_move(state, is_pull, is_purp, purp_interface, dy, dx) {
         state.won = true;
         return true;
     }
-    if (game_get_tile(state, new_y, new_x) !== TILE_EMPTY) {
+    if (!game_is_tile_free(state, new_y, new_x)) {
         return false;
     }
 

@@ -40,6 +40,18 @@ function ui_state_to_text(state) {
                 case TILE_FINISH:
                     line.push('F');
                 break;
+                case TILE_DIODE_N:
+                    line.push('^');
+                break;
+                case TILE_DIODE_E:
+                    line.push('>');
+                break;
+                case TILE_DIODE_S:
+                    line.push('v');
+                break;
+                case TILE_DIODE_W:
+                    line.push('<');
+                break;
             }
         }
         lines.push(line.join(''));
@@ -92,6 +104,18 @@ function ui_parse_map(map_text) {
                 case 'f':
                     map_line.push(TILE_FINISH);
                 break;
+                case '^':
+                    map_line.push(TILE_DIODE_N);
+                break;
+                case '>':
+                    map_line.push(TILE_DIODE_E);
+                break;
+                case 'v':
+                    map_line.push(TILE_DIODE_S);
+                break;
+                case '<':
+                    map_line.push(TILE_DIODE_W);
+                break;
                 default:
                     throw 'unknown map tile "' + lines[i][j] + '"';
             }
@@ -123,6 +147,10 @@ function ui_preload_canvas_tiles() {
     CANVAS_TILES[TILE_BLOCK_V] = ui_make_image('./img/tile_block_v.png');
     CANVAS_TILES[TILE_BLOCK_H] = ui_make_image('./img/tile_block_h.png');
     CANVAS_TILES[TILE_FINISH] = ui_make_image('./img/tile_finish.png');
+    CANVAS_TILES[TILE_DIODE_N] = ui_make_image('./img/tile_diode_n.png');
+    CANVAS_TILES[TILE_DIODE_E] = ui_make_image('./img/tile_diode_e.png');
+    CANVAS_TILES[TILE_DIODE_S] = ui_make_image('./img/tile_diode_s.png');
+    CANVAS_TILES[TILE_DIODE_W] = ui_make_image('./img/tile_diode_w.png');
     CANVAS_TILES['player'] = ui_make_image('./img/tile_player.png');
 }
 
