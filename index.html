@@ -191,7 +191,6 @@
                 // The only way to play the gif once is to *not* call this method
                 gif_encoder.setRepeat(0);
             gif_encoder.start();
-            ui_add_gif_frame(gif_encoder);
             $('gif_button').innerText = 'Stop Recording';
             $('gif_button').blur();
             $('gif_repeat').disabled = true;
