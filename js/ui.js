@@ -254,7 +254,7 @@ function ui_add_frame() {
     }
     if (ui_zip_file !== undefined) {
         var data = $('game_canvas').toDataURL().split(',')[1];
-        ui_zip_file.file(ui_file_name + '/frame_' + ui_zip_frame_count + '.png', data, {
+        ui_zip_file.file(ui_file_name + '/frame-' + ui_zip_frame_count + '.png', data, {
             base64: true,
         });
         ui_zip_frame_count++;
