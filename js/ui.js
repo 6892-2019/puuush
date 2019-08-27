@@ -241,8 +241,10 @@ function ui_start_recording() {
     $('record_button').blur();
     $('gif_repeat').disabled = true;
     $('file_name').disabled = true;
-    $('zip_download').disabled = true;
     $('gif_download').disabled = true;
+    $('zip_download').disabled = true;
+    $('gif_download').innerText = 'Download ' + ui_file_name + '.gif';
+    $('zip_download').innerText = 'Download ' + ui_file_name + '.zip';
 }
 
 function ui_add_frame() {
@@ -272,8 +274,8 @@ function ui_stop_recording() {
     $('record_button').blur();
     $('gif_repeat').disabled = false;
     $('file_name').disabled = false;
-    $('zip_download').disabled = false;
     $('gif_download').disabled = false;
+    $('zip_download').disabled = false;
 }
 
 function ui_download_gif() {
