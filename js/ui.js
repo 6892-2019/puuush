@@ -200,16 +200,89 @@ function ui_scroll_canvas(state) {
     ui_scroll_player_into_view($('canvas_wrapper'), state);
 }
 
-function ui_add_gif_frame(gif_encoder) {
-    if (gif_encoder !== undefined) {
-        gif_encoder.setDelay(parseInt($('gif_delay').value));
-        gif_encoder.addFrame($('game_canvas').getContext('2d'));
-    }
-}
-
-function ui_redraw(state, gif_encoder) {
-    ui_add_gif_frame(gif_encoder); // add *old* frame to gif
+function ui_redraw(state) {
+    ui_add_frame(); // add *old* frame to gif
     ui_redraw_text(state);
     ui_redraw_game_canvas(state);
     ui_scroll_canvas(state);
+}
+
+
+
+var ui_file_name;
+var ui_gif_encoder;
+var ui_zip_file;
+var ui_zip_frame_count;
+
+function ui_toggle_recording() {
+    if (ui_gif_encoder === undefined)
+        ui_start_recording();
+    else
+        ui_stop_recording();
+}
+
+function ui_start_recording() {
+    ui_stop_recording();
+    ui_file_name = $('file_name').value || 'puuush';
+
+    ui_gif_encoder = new GIFEncoder();
+    if ($('gif_repeat').checked)
+        // setRepeat documentation is wrong/misleading
+        // Calling setRepeat(1) plays the gif *twice*
+        // The only way to play the gif once is to *not* call this method
+        ui_gif_encoder.setRepeat(0);
+    ui_gif_encoder.start();
+
+    ui_zip_file = new JSZip();
+    ui_zip_frame_count = 0;
+
+
+    $('record_button').innerText = 'Stop Recording';
+    $('record_button').blur();
+    $('gif_repeat').disabled = true;
+    $('file_name').disabled = true;
+    $('zip_download').disabled = true;
+    $('gif_download').disabled = true;
+}
+
+function ui_add_frame() {
+    if (ui_gif_encoder !== undefined) {
+        ui_gif_encoder.setDelay(parseInt($('gif_delay').value));
+        ui_gif_encoder.addFrame($('game_canvas').getContext('2d'));
+    }
+    if (ui_zip_file !== undefined) {
+        var data = $('game_canvas').toDataURL().split(',')[1];
+        ui_zip_file.file(ui_file_name + '/frame_' + ui_zip_frame_count + '.png', data, {
+            base64: true,
+        });
+        ui_zip_frame_count++;
+    }
+}
+
+function ui_stop_recording() {
+    if (ui_gif_encoder !== undefined) {
+        ui_add_frame();
+        ui_gif_encoder.finish();
+        var binary_gif = ui_gif_encoder.stream().getData();
+        var data_url = 'data:image/gif;base64,'+encode64(binary_gif);
+        $('gif_output').src = data_url;
+        ui_gif_encoder = undefined;
+    }
+    $('record_button').innerText = 'Start Recording';
+    $('record_button').blur();
+    $('gif_repeat').disabled = false;
+    $('file_name').disabled = false;
+    $('zip_download').disabled = false;
+    $('gif_download').disabled = false;
+}
+
+function ui_download_gif() {
+    saveAs($('gif_output').src, ui_file_name + ".gif");
+}
+
+function ui_download_zip() {
+    if (ui_zip_file === undefined) return;
+    ui_zip_file.generateAsync({type:"blob"}).then(function (blob) {
+        saveAs(blob, ui_file_name + ".zip");
+    });
 }

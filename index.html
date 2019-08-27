@@ -7,6 +7,8 @@
     <script type="text/javascript" src="./libs/jsgif/NeuQuant.js"></script>
     <script type="text/javascript" src="./libs/jsgif/GIFEncoder.js"></script>
     <script type="text/javascript" src="./libs/jsgif/b64.js"></script>
+    <script type="text/javascript" src="./libs/FileSaver.js"></script>
+    <script type="text/javascript" src="./libs/jszip.js"></script>
     <script src="./libs/underscore.js"></script>
     <script>JSCLASS_PATH = "./libs/jsclass"</script>
     <script src="./libs/jsclass/loader-browser.js"><!--because regular JavaScript sets are SO LIMITED--></script>
@@ -24,7 +26,7 @@
     }
 
     function redraw() {
-        ui_redraw(cur_state, gif_encoder);
+        ui_redraw(cur_state);
     }
 
     function start_game(scroll_to_canvas) {
@@ -112,6 +114,7 @@
 
     function init() {
         ui_preload_canvas_tiles();
+        ui_stop_recording();
 
         if (location.hash !== '' && location.hash[0] === '#') {
             try {
@@ -180,35 +183,6 @@
         }
         game_move(cur_state, $('is_pull').checked, $('is_purp').checked && !cancel_purp, purp_interface, dy, dx);
         redraw();
-    }
-
-    var gif_encoder = undefined;
-    function record_gif() {
-        if (gif_encoder === undefined) {
-            // start gif
-            gif_encoder = new GIFEncoder();
-            if ($('gif_repeat').checked)
-                // setRepeat documentation is wrong/misleading
-                // Calling setRepeat(1) plays the gif *twice*
-                // The only way to play the gif once is to *not* call this method
-                gif_encoder.setRepeat(0);
-            gif_encoder.start();
-            $('gif_button').innerText = 'Stop Recording';
-            $('gif_button').blur();
-            $('gif_repeat').disabled = true;
-        }
-        else {
-            // stop gif
-            ui_add_gif_frame(gif_encoder);
-            gif_encoder.finish();
-            var binary_gif = gif_encoder.stream().getData();
-            var data_url = 'data:image/gif;base64,'+encode64(binary_gif);
-            $('gif_output').src = data_url;
-            $('gif_button').innerText = 'Record GIF';
-            $('gif_button').blur();
-            $('gif_repeat').disabled = false;
-            gif_encoder = undefined;
-        }
     }
 
     var legend_visible = false;
@@ -281,7 +255,7 @@
                 <label><input type='checkbox' name='gravity'> Gravity</label>
                 <div class='spacer'></div>
                 <button type='button' id='start_button' onclick='start_game(true)'>start</button>
-                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state, gif_encoder)'>solve reachability<span id='solve_error'></span></button>
+                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state)'>solve reachability<span id='solve_error'></span></button>
                 <label id='impossible'></label>
             </div>
         </div>
@@ -307,11 +281,20 @@
     </div>
     <pre id='game_text'></pre>
     <div>
-        <button type='button' id='gif_button' onclick='record_gif()'>Record GIF</button>
-        <label><input type='number' min='0' value='200' length='4' id='gif_delay' title="Applies to the current and all future frames"> ms/frame</label>
-        <label><input type='checkbox' id='gif_repeat' checked> repeat</label>
+        <button type='button' id='record_button' onclick='ui_toggle_recording()'></button>
+        <label><input length='4' id='file_name' placeholder='puuush'>.gif/.svg</label>
+        <label><input type='number' min='0' value='200' length='4' id='gif_delay' title='Applies to the current and all future frames'> ms/frame</label>
+        <label><input type='checkbox' id='gif_repeat' checked> loop</label>
     </div>
     <div id='gif_wrapper'><img id='gif_output' /></div>
-    <div class='credits'>Robot icon by <a href='https://fontawesome.com/icons/robot?style=solid' rel='noreferrer'>Font Awesome</a> (CC-BY), thanks! GIF recorder powered by <a href='https://github.com/antimatter15/jsgif'>jsgif</a>.</div>
+    <div>
+        <button id='gif_download' onclick='ui_download_gif()' disabled>Download as GIF</button>
+        <button id='zip_download' onclick='ui_download_zip()' disabled>Download as PNG ZIP</button>
+    </div>
+    <div class='credits'>
+        Robot icon by <a href='https://fontawesome.com/icons/robot?style=solid' rel='noreferrer'>Font Awesome</a> (CC-BY), thanks!
+        GIF recorder powered by <a href='https://github.com/antimatter15/jsgif'>jsgif</a>.
+        ZIP files created with <a href='https://stuk.github.io/jszip'>jszip</a>.
+    </div>
 </body>
 </html>

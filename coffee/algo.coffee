@@ -261,14 +261,14 @@ JS.require 'JS.Set', 'JS.Hash', (Set, Hash) ->
 			return new Code(insts)
 		
 		# assumes unfolded
-		execute: (state, gif) ->
+		execute: (state) ->
 				
 			code = this
 			inst_id = 0
 			func = ->
 				inst = code.insts[inst_id]
 				game_move(state, false, inst.purp_offset?, inst.purp_offset, inst.dir[0], inst.dir[1])
-				ui_redraw(state, gif)
+				ui_redraw(state)
 				
 				inst_id += 1
 				if inst_id < code.insts.length
