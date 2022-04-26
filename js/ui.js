@@ -212,7 +212,8 @@ function ui_redraw(state) {
 var ui_file_name;
 var ui_gif_encoder;
 var ui_zip_file;
-var ui_zip_frame_count;
+var ui_svgtiler_zip_file;
+var ui_frame_count;
 
 function ui_toggle_recording() {
     if (ui_gif_encoder === undefined)
@@ -234,7 +235,8 @@ function ui_start_recording() {
     ui_gif_encoder.start();
 
     ui_zip_file = new JSZip();
-    ui_zip_frame_count = 0;
+    ui_svgtiler_zip_file = new JSZip();
+    ui_frame_count = 0;
 
 
     $('record_button').innerText = 'Stop Recording';
@@ -243,8 +245,10 @@ function ui_start_recording() {
     $('file_name').disabled = true;
     $('gif_download').disabled = true;
     $('zip_download').disabled = true;
+    $('svgtiler_zip_download').disabled = true;
     $('gif_download').innerText = 'Download ' + ui_file_name + '.gif';
-    $('zip_download').innerText = 'Download ' + ui_file_name + '.zip';
+    $('zip_download').innerText = 'Download ' + ui_file_name + '.zip (png)';
+    $('svgtiler_zip_download').innerText = 'Download ' + ui_file_name + '.zip (asc)';
 }
 
 function ui_add_frame() {
@@ -254,11 +258,15 @@ function ui_add_frame() {
     }
     if (ui_zip_file !== undefined) {
         var data = $('game_canvas').toDataURL().split(',')[1];
-        ui_zip_file.file(ui_file_name + '/frame-' + ui_zip_frame_count + '.png', data, {
+        ui_zip_file.file(ui_file_name + '/frame-' + ui_frame_count + '.png', data, {
             base64: true,
         });
-        ui_zip_frame_count++;
     }
+    if (ui_svgtiler_zip_file !== undefined) {
+        var data = $('game_text').innerText;
+        ui_svgtiler_zip_file.file(ui_file_name + '/frame-' + ui_frame_count + '.asc', data);
+    }
+    ui_frame_count++;
 }
 
 function ui_stop_recording() {
@@ -276,6 +284,7 @@ function ui_stop_recording() {
     $('file_name').disabled = false;
     $('gif_download').disabled = false;
     $('zip_download').disabled = false;
+    $('svgtiler_zip_download').disabled = false;
 }
 
 function ui_download_gif() {
@@ -285,6 +294,13 @@ function ui_download_gif() {
 function ui_download_zip() {
     if (ui_zip_file === undefined) return;
     ui_zip_file.generateAsync({type:"blob"}).then(function (blob) {
+        saveAs(blob, ui_file_name + ".zip");
+    });
+}
+
+function ui_download_svgtiler_zip() {
+    if (ui_svgtiler_zip_file === undefined) return;
+    ui_svgtiler_zip_file.generateAsync({type:"blob"}).then(function (blob) {
         saveAs(blob, ui_file_name + ".zip");
     });
 }
