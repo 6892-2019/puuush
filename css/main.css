@@ -89,6 +89,7 @@ tt {
 
 #strength_hint {
     margin-bottom: 0.5em;
+    grid-column: 2 / span 2;
 }
 
 #settings_panel>.spacer {
