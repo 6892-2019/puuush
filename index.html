@@ -207,6 +207,7 @@
     <form id='level'>
         <div class='row'>
             <div class='panel'>
+                <b>Puzzle design:</b>
                 <button type='button' id='legend_button' onclick='toggle_legend()'>Show legend</button>
                 <div id='legend'>
                     <div class='legend_item'><tt>.</tt> or <tt>&nbsp;</tt> = blank space</div>
@@ -263,23 +264,27 @@
     <hr>
     <div id='controls' class='row'>
         <div id='movement_panel' class='panel'>
+            <div><b>Play:</b></div>
+            <button onclick='move(-1, 0)'>↑&nbsp;(<kbd>W</kbd>)</button>
             <div></div>
-            <button onclick='move(-1, 0)'>↑(W)</button>
-            <div></div>
-            <button onclick='move(0, -1)'>←(A)</button>
-            <button onclick='move(1, 0)'>↓(S)</button>
-            <button onclick='move(0, 1)'>→(D)</button>
+            <button onclick='move(0, -1)'>←&nbsp;(<kbd>A</kbd>)</button>
+            <button onclick='move(1, 0)'>↓&nbsp;(<kbd>S</kbd>)</button>
+            <button onclick='move(0, 1)'>→&nbsp;(<kbd>D</kbd>)</button>
         </div>
         <div class='spacer'></div>
         <div id='extra_controls_panel' class='panel'>
-            <div><label id='pull_label'><input type='checkbox' id='is_pull'> Pull (Shift)</label></div>
-            <div><label id='purp_label'><input type='checkbox' id='is_purp'> Purp (Space or P) (I: top block, J: left block, K: bottom block, L: right block)</label></div>
+            <div><label id='pull_label'><input type='checkbox' id='is_pull'> Pull (hold <kbd>Shift</kbd>)</label></div>
+            <div><label id='purp_label'><input type='checkbox' id='is_purp'> Purp (hold <kbd>Space</kbd> or <kbd>P</kbd>) (I: top block, J: left block, K: bottom block, L: right block)</label></div>
         </div>
     </div>
     <div id='canvas_wrapper'>
         <canvas id='game_canvas'></canvas>
     </div>
-    <pre id='game_text'></pre>
+    <hr>
+    <details>
+        <summary>ASCII representation (e.g. for <a href="https://github.com/edemaine/svgtiler">SVG Tiler</a>)</summary>
+        <pre id='game_text'></pre>
+    </details>
     <div>
         <button type='button' id='record_button' onclick='ui_toggle_recording()'></button>
         <label><input length='4' id='file_name' placeholder='puuush'>.gif/.zip</label>
