@@ -123,13 +123,17 @@
                 console.log('Error parsing the hash string:');
                 console.log(e);
             }
+            if (document.querySelector('input[name="purp"]').checked) {
+                document.documentElement.classList.add('show-purp');
+            }
         }
 
         pressed_keys = {};
         document.addEventListener('keydown', function (e) {
             pressed_keys[e.code] = true;
             $('is_pull').checked = e.shiftKey;
-            $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'] || pressed_keys['KeyI'] || pressed_keys['KeyJ'] || pressed_keys['KeyK'] || pressed_keys['KeyL'];
+            $('is_purp').checked = //pressed_keys['Space'] ||
+            pressed_keys['KeyP'] || pressed_keys['KeyI'] || pressed_keys['KeyJ'] || pressed_keys['KeyK'] || pressed_keys['KeyL'];
 
             if (e.target.tagName.toUpperCase() === 'BODY') {
                 switch (e.code) {
@@ -155,7 +159,8 @@
         document.addEventListener('keyup', function (e) {
             pressed_keys[e.code] = false;
             $('is_pull').checked = e.shiftKey;
-            $('is_purp').checked = pressed_keys['Space'] || pressed_keys['KeyP'] || pressed_keys['KeyI'] || pressed_keys['KeyJ'] || pressed_keys['KeyK'] || pressed_keys['KeyL'];
+            $('is_purp').checked = //pressed_keys['Space'] ||
+            pressed_keys['KeyP'] || pressed_keys['KeyI'] || pressed_keys['KeyJ'] || pressed_keys['KeyK'] || pressed_keys['KeyL'];
         });
         start_game(false);
     }
@@ -243,9 +248,9 @@
                         <option value='1' disabled>Moved blocks slide (PullPull)</option>
                         <option value='2' disabled>All blocks in path slide (PullPullPull)</option>
                     </select>
-                    <div>Purp</div>
-                    <label><input type='number' min='-1' value='1' length='3' name='purp_strength' class='strength'></label>
-                    <select name='purp_slide'>
+                    <div class="purp">Purp</div>
+                    <label class="purp"><input type='number' min='-1' value='1' length='3' name='purp_strength' class='strength'></label>
+                    <select name='purp_slide' class="purp">
                         <option value='0' selected>No sliding</option>
                         <option value='1'>Moved blocks slide</option>
                         <option value='2'>All blocks in path slide</option>
@@ -254,10 +259,11 @@
                 </div>
                 <label><input type='checkbox' name='simple_path'> Visited blocks disappear</label>
                 <label><input type='checkbox' name='gravity'> Gravity</label>
+                <input type='checkbox' name='purp'>
                 <div class='spacer'></div>
-                <button type='button' id='start_button' onclick='start_game(true)'>start</button>
-                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state)'>solve reachability<span id='solve_error'></span></button>
-                <label id='impossible'></label>
+                <button type='button' id='start_button' onclick='start_game(true)'><b>start</b> (play puzzle design below)</button>
+                <button type='button' id='solve_button' onclick='solve_purp_1(cur_state)' class="purp">solve reachability<span id='solve_error'></span></button>
+                <label id='impossible' class="purp"></label>
             </div>
         </div>
     </form>
@@ -274,7 +280,7 @@
         <div class='spacer'></div>
         <div id='extra_controls_panel' class='panel'>
             <div><label id='pull_label'><input type='checkbox' id='is_pull'> Pull (hold <kbd>Shift</kbd>)</label></div>
-            <div><label id='purp_label'><input type='checkbox' id='is_purp'> Purp (hold <kbd>Space</kbd> or <kbd>P</kbd>) (I: top block, J: left block, K: bottom block, L: right block)</label></div>
+            <div class="purp"><label id='purp_label'><input type='checkbox' id='is_purp'> Purp (hold <kbd>P</kbd>) (<kbd>I</kbd>: top block, <kbd>J</kbd>: left block, <kbd>K</kbd>: bottom block, <kbd>L</kbd>: right block)</label></div>
         </div>
     </div>
     <div id='canvas_wrapper'>

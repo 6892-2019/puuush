@@ -129,3 +129,10 @@ tt {
     margin-top: 5px;
     font-size: smaller;
 }
+
+input[name="purp"], .purp {
+    display: none;
+}
+:root.show-purp .purp {
+    display: initial;
+}
