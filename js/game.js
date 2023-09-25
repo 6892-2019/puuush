@@ -41,11 +41,19 @@ type State = {
 */
 
 function game_coords_valid(state, y, x) {
+    /**
+     * Returns true if the game coordinates are contained within the board,
+     * false otherwise.
+     */
     // (State, int, int) -> bool
     return (0 <= y) && (y < state.level.height) && (0 <= x) && (x < state.level.width);
 }
 
 function game_get_tile(state, y, x) {
+    /**
+     * Returns the value at position [y, x] if coordinates are valid,
+     * returns an obstacle block ("fixed") otherwise.
+     */
     // (State, int, int) -> TILE_*
     if (game_coords_valid(state, y, x))
         return state.map[y][x];
@@ -54,12 +62,19 @@ function game_get_tile(state, y, x) {
 }
 
 function game_set_tile(state, y, x, tile) {
+    /**
+     * Sets the value at position [y, x] to tile if coordinates are valid,
+     * throws assertion otherwise.
+     */
     // (State, int, int, TILE_*) -> void
     util_assert(game_coords_valid(state, y, x));
     state.map[y][x] = tile;
 }
 
 function game_new_game(level) {
+    /**
+     * Create a new game with a certain level
+     */
     // (Level) -> State
     var to_ret = {
         won: false,
@@ -121,7 +136,7 @@ function game_do_gravity(state) {
 }
 
 function game_try_move_block(state, y, x, dy, dx, slide_rule) {
-    // (State, int, int, int, int, SLIDE_) -> bool
+    // (State, int, int, int, int, SLIDE_, bool) -> bool
     // mutates state, returns true if successful
     if (!game_is_movable_block(state, y, x, dy, dx)) {
         return false;
@@ -262,4 +277,20 @@ function game_move(state, is_pull, is_purp, purp_interface, dy, dx) {
 
     game_do_gravity(state);
     return true;
+}
+
+function game_undo(state, is_pull, is_purp, purp_interface, dy, dx) {
+    // (State, bool, bool) -> bool
+    // mutates state, returns true iff move was valid
+    //dy = -1 * LAST_NOVEL_MOVE.dy;
+    //dx = -1 * LAST_NOVEL_MOVE.dx;
+    return game_move(state, is_pull, is_purp, purp_interface, dy, dx);
+}
+
+function game_redo(state, is_pull, is_purp, purp_interface, dy, dx) {
+    // (State, bool, bool) -> bool
+    // mutates state, returns true iff move was valid
+    //dy = LAST_NOVEL_MOVE.dy;
+    //dx = LAST_NOVEL_MOVE.dx;
+    return game_move(state, is_pull, is_purp, purp_interface, dy, dx);
 }
