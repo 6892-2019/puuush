@@ -88,6 +88,10 @@ function game_new_game(level) {
 }
 
 function game_finish_tile(state) {
+    /**
+     * Return true if some tile on the game is a finish tile,
+     * false otherwise.
+     */
     for (var y = 0; y < state.level.height; ++y)
         for (var x = 0; x < state.level.width; ++x)
             if (game_get_tile(state, y, x) == TILE_FINISH)
@@ -96,6 +100,10 @@ function game_finish_tile(state) {
 }
 
 function game_is_tile_free(state, y, x) {
+    /**
+     * Return true if tile is free (not a fixed or block tile),
+     * false otherwise.
+     */
     var tile_type = game_get_tile(state, y, x);
     return tile_type == TILE_EMPTY
         || tile_type == TILE_FINISH
@@ -106,8 +114,11 @@ function game_is_tile_free(state, y, x) {
 }
 
 function game_is_movable_block(state, y, x, dy, dx) {
+    /**
+     * Returns true if the tile can be moved in a given direction,
+     * false otherwise.
+     */
     // (State, int, int, int, int) -> bool
-    // checks whether the tile can be moved in a given direction
     switch (game_get_tile(state, y, x)) {
         case TILE_BLOCK: return true;
         case TILE_BLOCK_H: return dy === 0;
@@ -116,9 +127,11 @@ function game_is_movable_block(state, y, x, dy, dx) {
 }
 
 function game_do_gravity(state) {
+    /**
+     * Moves tiles to simulate gravity; tiles do not fall past finish tile.
+     * Mutates state.
+     */
     // State -> undefined
-    // Mutates state
-    // note: tiles will not fall past Finish tile
     if (!state.level.rules.gravity) return;
 
     for (var x=0; x < state.level.width; ++x) {
@@ -136,8 +149,11 @@ function game_do_gravity(state) {
 }
 
 function game_try_move_block(state, y, x, dy, dx, slide_rule) {
+    /**
+     * Mutates state by attempting to move block,
+     * returns true if successful; false otherwise.
+     */
     // (State, int, int, int, int, SLIDE_, bool) -> bool
-    // mutates state, returns true if successful
     if (!game_is_movable_block(state, y, x, dy, dx)) {
         return false;
     }
@@ -181,8 +197,10 @@ function game_try_move_block(state, y, x, dy, dx, slide_rule) {
 }
 
 function game_push(state, dy, dx) {
+    /**
+     * Mutates state by performing the pushing move.
+     */
     // (State, int, int) -> undefined
-    // mutates state
 
     var blocks = 0;
     while (game_is_movable_block(state, state.y + dy * (blocks + 1), state.x + dx * (blocks + 1), dy, dx)) {
@@ -198,8 +216,10 @@ function game_push(state, dy, dx) {
 }
 
 function game_pull(state, dy, dx) {
+    /**
+     * Mutates state by performing the pulling move.
+     */
     // (State, int, int) -> undefined
-    // mutates state
     if (game_get_tile(state, state.y + dy, state.x + dx) !== TILE_EMPTY)
         return;
     if (state.level.rules.simple_path) {
@@ -215,8 +235,10 @@ function game_pull(state, dy, dx) {
 }
 
 function game_purp(state, dy, dx, interface_) {
+    /**
+     * Mutates state by purping.
+     */
     // (State, int, int) -> undefined
-    // mutates state
     if (game_get_tile(state, state.y + dy, state.x + dx) !== TILE_EMPTY)
         return;
 
@@ -236,8 +258,10 @@ function game_purp(state, dy, dx, interface_) {
 }
 
 function game_move(state, is_pull, is_purp, purp_interface, dy, dx) {
+    /**
+     * Mutates state, returns true iff move is valid.
+     */
     // (State, bool, bool, int, int) -> bool
-    // mutates state, returns true iff move was valid
 
     if (state.won) {
         return false;
@@ -280,17 +304,19 @@ function game_move(state, is_pull, is_purp, purp_interface, dy, dx) {
 }
 
 function game_undo(state, is_pull, is_purp, purp_interface, dy, dx) {
+    /**
+     * Mutates state by undoing last newly executed move (a move that isn't in itself an undo
+     * or redo), returns true iff move is valid.
+     */
     // (State, bool, bool) -> bool
-    // mutates state, returns true iff move was valid
-    //dy = -1 * LAST_NOVEL_MOVE.dy;
-    //dx = -1 * LAST_NOVEL_MOVE.dx;
     return game_move(state, is_pull, is_purp, purp_interface, dy, dx);
 }
 
 function game_redo(state, is_pull, is_purp, purp_interface, dy, dx) {
+    /**
+     * Mutates state by redoing last newly executed move (a move that isn't in itself an undo
+     * or redo), returns true iff move is valid.
+     */
     // (State, bool, bool) -> bool
-    // mutates state, returns true iff move was valid
-    //dy = LAST_NOVEL_MOVE.dy;
-    //dx = LAST_NOVEL_MOVE.dx;
     return game_move(state, is_pull, is_purp, purp_interface, dy, dx);
 }
