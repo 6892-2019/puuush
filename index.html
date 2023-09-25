@@ -20,6 +20,8 @@
     'use strict';
     var cur_state;
     var pressed_keys;
+    var undo = true;
+    var LAST_NOVEL_MOVE = {dy: null, dx: null};
 
     function $(id) {
         return document.getElementById(id);
@@ -153,6 +155,16 @@
                     case 'ArrowRight':
                         move(0, 1);
                     break;
+                    case 'KeyU':
+                        if (undo){
+                            toggle_undo();
+                        }
+                    break;
+                    case 'KeyR':
+                        if (!undo) {
+                            toggle_undo();
+                        }
+                    break;
                 }
             }
         })
@@ -188,6 +200,11 @@
         }
         game_move(cur_state, $('is_pull').checked, $('is_purp').checked && !cancel_purp, purp_interface, dy, dx);
         redraw();
+        LAST_NOVEL_MOVE.dy = dy;
+        LAST_NOVEL_MOVE.dx = dx;
+        var undo_button = $('undo_button');
+        undo_button.innerText = 'Undo';
+        undo = true;
     }
 
     var legend_visible = false;
@@ -205,6 +222,38 @@
         }
         legend_visible = !legend_visible;
     }
+
+    function toggle_undo() {
+        var purp_interface = null;
+        var cancel_purp = false;
+        if (LAST_NOVEL_MOVE.dy === 0) {
+            if (pressed_keys['KeyI'])
+                purp_interface = [-1, 0];
+            if (pressed_keys['KeyK'])
+                purp_interface = [1, 0];
+            if (pressed_keys['KeyJ'] || pressed_keys['KeyL'])
+                cancel_purp = true;
+        }
+
+        if (LAST_NOVEL_MOVE.dx === 0) {
+            if (pressed_keys['KeyJ'])
+                purp_interface = [0, -1];
+            if (pressed_keys['KeyL'])
+                purp_interface = [0, 1];
+            if (pressed_keys['KeyI'] || pressed_keys['KeyK'])
+                cancel_purp = true;
+        }
+        var button = $('undo_button');
+        button.innerText = undo ? 'Redo' : 'Undo';
+        if (undo) {
+            game_undo(cur_state, $('is_pull').checked, $('is_purp').checked && !cancel_purp, purp_interface, -LAST_NOVEL_MOVE.dy, -LAST_NOVEL_MOVE.dx);
+        }
+        else {
+            game_redo(cur_state, $('is_pull').checked, $('is_purp').checked && !cancel_purp, purp_interface, LAST_NOVEL_MOVE.dy, LAST_NOVEL_MOVE.dx);
+        }
+        undo = !undo;
+        redraw();
+    }
     </script>
     <link href='./css/main.css' rel='stylesheet'>
 </head>
@@ -214,6 +263,7 @@
             <div class='panel'>
                 <b>Puzzle design:</b>
                 <button type='button' id='legend_button' onclick='toggle_legend()'>Show legend</button>
+                <button type='button' id='undo_button' onclick='toggle_undo()'>Undo</button>
                 <div id='legend'>
                     <div class='legend_item'><tt>.</tt> or <tt>&nbsp;</tt> = blank space</div>
                     <div class='legend_item'><tt>#</tt> = fixed block</div>
